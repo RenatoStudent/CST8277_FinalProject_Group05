@@ -1,0 +1,17 @@
+## Java / Maven
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+## Eclipse
+bin/
+.recommenders/
+
+## OS
+.DS_Store
+Thumbs.db
+
+## Logs
+*.log
