@@ -12,6 +12,7 @@ import java.io.Serializable;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
+//TODO A01 - Add missing annotations, please see lecture slides.  Value 1 is academic and value 0 is non-academic.
 @Entity(name = "Academic")
 @DiscriminatorValue("1")
 public class Academic extends StudentClub implements Serializable {

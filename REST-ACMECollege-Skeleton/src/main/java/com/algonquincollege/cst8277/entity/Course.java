@@ -28,6 +28,8 @@ import jakarta.persistence.Transient;
 /**
  * The persistent class for the course database table.
  */
+//TODO C01 - Add the missing annotations.
+//TODO C02 - Do we need a mapped super class?  If so, which one?
 @Entity(name = "Course")
 @Table(name = "course")
 @Access(AccessType.FIELD)
@@ -46,22 +48,28 @@ public class Course extends PojoBase implements Serializable {
 
     public static final String ALL_COURSES_QUERY = "Course.findAll";
 
+    // TODO C03 - Add missing annotations.
     @Basic(optional = false)
     @Column(name = "course_code", nullable = false, length = 7)
     protected String courseCode;
 
+    // TODO C04 - Add missing annotations.
     @Basic(optional = false)
     @Column(name = "course_title", nullable = false, length = 100)
     protected String courseTitle;
 
+    // TODO C05 - Add missing annotations.
     @Basic(optional = false)
     @Column(name = "credit_units", nullable = false)
     protected Integer creditUnits;
 
+    // TODO C06 - Add missing annotations.
     @Basic(optional = false)
     @Column(name = "online", nullable = false)
     protected Short online;
 
+    // TODO C07 - Add annotations for 1:M relation.  What should be the cascade and fetch types?
+    // TODO C08 - Add other missing annotations.
     @OneToMany(
         cascade = CascadeType.MERGE,
         fetch = FetchType.LAZY,
@@ -69,6 +77,7 @@ public class Course extends PojoBase implements Serializable {
     )
     protected Set<CourseRegistration> courseRegistrations = new HashSet<>();
 
+    // TODO C09 - Add missing annotations.
     @Transient
     protected boolean editable = false;
 

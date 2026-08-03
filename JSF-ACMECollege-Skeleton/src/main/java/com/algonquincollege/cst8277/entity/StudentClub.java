@@ -35,6 +35,9 @@ import jakarta.persistence.Transient;
 /**
  * The persistent class for the student_club database table.
  */
+//TODO SC01 - Add the missing annotations.
+//TODO SC02 - StudentClub has subclasses Academic and NonAcademic.  Look at lecture slides for InheritanceType.
+//TODO SC03 - Do we need a mapped super class?  If so, which one?
 @Entity(name = "StudentClub")
 @Table(name = "student_club")
 @Access(AccessType.FIELD)
@@ -78,14 +81,17 @@ public class StudentClub extends PojoBase implements Serializable {
     public static final String STUDENT_CLUB_BY_ID_QUERY =
         "StudentClub.findById";
 
+    // TODO SC04 - Add the missing annotations.
     @Basic(optional = false)
     @Column(name = "name", nullable = false, length = 100)
     protected String name;
 
+    // TODO SC05 - Add the missing annotations.
     @Basic(optional = false)
     @Column(name = "description", nullable = false, length = 100)
     protected String desc;
 
+    // TODO SC06 - Add the missing annotations.
     /*
      * The academic column is also the inheritance discriminator.
      * It is therefore read through this field but written by JPA
@@ -99,6 +105,8 @@ public class StudentClub extends PojoBase implements Serializable {
     )
     protected boolean isAcademic;
 
+    // TODO SC07 - Add the M:N annotation.  What should be the cascade and fetch types?
+    // TODO SC08 - Add other missing annotations.
     /*
      * Student is the owning side of this many-to-many relationship.
      * Student.studentClubs defines the club_membership join table.
@@ -110,6 +118,7 @@ public class StudentClub extends PojoBase implements Serializable {
     )
     protected Set<Student> studentMembers = new HashSet<>();
 
+    // TODO SC09 - Add the missing annotations.
     @Transient
     protected boolean editable = false;
 
@@ -146,6 +155,7 @@ public class StudentClub extends PojoBase implements Serializable {
         this.isAcademic = isAcademic;
     }
 
+    // TODO SC10 - Is an annotation needed here?
     @JsonIgnore
     public Set<Student> getStudentMembers() {
         return studentMembers;

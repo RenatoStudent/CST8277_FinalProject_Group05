@@ -28,6 +28,8 @@ import jakarta.persistence.Transient;
 /**
  * The persistent class for the professor database table.
  */
+//TODO P01 - Add the missing annotations.
+//TODO P02 - Do we need a mapped super class?  If so, which one?
 @Entity(name = "Professor")
 @Table(name = "professor")
 @Access(AccessType.FIELD)
@@ -47,18 +49,23 @@ public class Professor extends PojoBase implements Serializable {
     public static final String ALL_PROFESSORS_QUERY =
         "Professor.findAll";
 
+    // TODO P03 - Add annotations.
     @Basic(optional = false)
     @Column(name = "first_name", nullable = false, length = 50)
     protected String firstName;
 
+    // TODO P04 - Add annotations.
     @Basic(optional = false)
     @Column(name = "last_name", nullable = false, length = 50)
     protected String lastName;
 
-    @Basic(optional = false)
-    @Column(name = "degree", nullable = false, length = 45)
+    // TODO P05 - Add annotations.
+    @Basic(optional = true)
+    @Column(name = "degree", nullable = true, length = 45)
     protected String degree;
 
+    // TODO P06 - Add annotations for 1:M relation.  What should be the cascade and fetch types?
+    // TODO P07 - Add other missing annotations.
     @OneToMany(
         cascade = CascadeType.MERGE,
         fetch = FetchType.LAZY,
@@ -67,6 +74,7 @@ public class Professor extends PojoBase implements Serializable {
     protected Set<CourseRegistration> courseRegistrations =
         new HashSet<>();
 
+    // TODO P08 - Add annotations.
     @Transient
     protected boolean editable = false;
 
@@ -98,6 +106,7 @@ public class Professor extends PojoBase implements Serializable {
         this.degree = degree;
     }
 
+    // TODO P09 - Is an annotation needed here?
     @JsonIgnore
     public Set<CourseRegistration> getCourseRegistrations() {
         return courseRegistrations;
