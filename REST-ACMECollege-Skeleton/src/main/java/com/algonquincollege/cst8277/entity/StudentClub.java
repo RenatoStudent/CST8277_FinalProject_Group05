@@ -1,14 +1,19 @@
 /********************************************************************************************************
- * File:  StudentClub.java Course Materials CST 8277
+ * File: StudentClub.java Course Materials CST 8277
  *
  * @author Teddy Yap
- * 
+ *
  */
 package com.algonquincollege.cst8277.entity;
 
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 import jakarta.persistence.Access;
 import jakarta.persistence.AccessType;
@@ -22,24 +27,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.NamedQuery;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
-
-import com.algonquincollege.cst8277.entity.Academic;
-import com.algonquincollege.cst8277.entity.NonAcademic;
-
-@SuppressWarnings("unused")
 
 /**
  * The persistent class for the student_club database table.
@@ -47,86 +38,163 @@ import com.algonquincollege.cst8277.entity.NonAcademic;
 //TODO SC01 - Add the missing annotations.
 //TODO SC02 - StudentClub has subclasses Academic and NonAcademic.  Look at lecture slides for InheritanceType.
 //TODO SC03 - Do we need a mapped super class?  If so, which one?
-public class StudentClub implements Serializable {
-	private static final long serialVersionUID = 1L;
-	
-	public static final String ALL_STUDENT_CLUBS_QUERY = "StudentClub.findAll";
+@Entity(name = "StudentClub")
+@Table(name = "student_club")
+@Access(AccessType.FIELD)
+@AttributeOverride(
+    name = "id",
+    column = @Column(name = "club_id")
+)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(
+    name = "academic",
+    discriminatorType = DiscriminatorType.INTEGER
+)
+@NamedQuery(
+    name = StudentClub.ALL_STUDENT_CLUBS_QUERY,
+    query = "SELECT DISTINCT sc FROM StudentClub sc "
+          + "LEFT JOIN FETCH sc.studentMembers"
+)
+@NamedQuery(
+    name = StudentClub.STUDENT_CLUB_BY_ID_QUERY,
+    query = "SELECT DISTINCT sc FROM StudentClub sc "
+          + "LEFT JOIN FETCH sc.studentMembers "
+          + "WHERE sc.id = :param1"
+)
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.EXISTING_PROPERTY,
+    property = "academic",
+    visible = true
+)
+@JsonSubTypes({
+    @Type(value = Academic.class, name = "true"),
+    @Type(value = NonAcademic.class, name = "false")
+})
+public class StudentClub extends PojoBase implements Serializable {
 
-	// TODO SC04 - Add the missing annotations.
-	protected String name;
+    private static final long serialVersionUID = 1L;
 
-	// TODO SC05 - Add the missing annotations.
-	protected String desc;
+    public static final String ALL_STUDENT_CLUBS_QUERY =
+        "StudentClub.findAll";
 
-	// TODO SC06 - Add the missing annotations.
-	protected boolean isAcademic;
+    public static final String STUDENT_CLUB_BY_ID_QUERY =
+        "StudentClub.findById";
 
-	// TODO SC07 - Add the M:N annotation.  What should be the cascade and fetch types?
-	// TODO SC08 - Add other missing annotations.
-	protected Set<Student> studentMembers = new HashSet<Student>();
-	
-	// TODO SC09 - Add the missing annotations.
-	protected boolean editable = false;
+    // TODO SC04 - Add the missing annotations.
+    @Basic(optional = false)
+    @Column(name = "name", nullable = false, length = 100)
+    protected String name;
 
-	public StudentClub() {
-		super();
-	}
+    // TODO SC05 - Add the missing annotations.
+    @Basic(optional = false)
+    @Column(name = "description", nullable = false, length = 100)
+    protected String desc;
+
+    // TODO SC06 - Add the missing annotations.
+    /*
+     * The academic column is also the inheritance discriminator.
+     * It is therefore read through this field but written by JPA
+     * according to the Academic or NonAcademic subclass.
+     */
+    @Column(
+        name = "academic",
+        nullable = false,
+        insertable = false,
+        updatable = false
+    )
+    protected boolean isAcademic;
+
+    // TODO SC07 - Add the M:N annotation.  What should be the cascade and fetch types?
+    // TODO SC08 - Add other missing annotations.
+    /*
+     * Student is the owning side of this many-to-many relationship.
+     * Student.studentClubs defines the club_membership join table.
+     */
+    @ManyToMany(
+        cascade = CascadeType.MERGE,
+        fetch = FetchType.LAZY,
+        mappedBy = "studentClubs"
+    )
+    protected Set<Student> studentMembers = new HashSet<>();
+
+    // TODO SC09 - Add the missing annotations.
+    @Transient
+    protected boolean editable = false;
+
+    public StudentClub() {
+        super();
+    }
 
     public StudentClub(boolean isAcademic) {
         this();
         this.isAcademic = isAcademic;
     }
 
-	public String getName() {
-		return name;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public String getDesc() {
-		return desc;
-	}
+    public String getDesc() {
+        return desc;
+    }
 
-	public void setDesc(String desc) {
-		this.desc = desc;
-	}
-	
-	public boolean getAcademic() {
-		return this.isAcademic;
-	}
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
 
-	public void setAcademic(boolean isAcademic) {
-		this.isAcademic = isAcademic;
-	}
+    public boolean getAcademic() {
+        return isAcademic;
+    }
 
-	// TODO SC10 - Is an annotation needed here?
-	public Set<Student> getStudentMembers() {
-		return studentMembers;
-	}
+    public void setAcademic(boolean isAcademic) {
+        this.isAcademic = isAcademic;
+    }
 
-	public void setStudentMembers(Set<Student> studentMembers) {
-		this.studentMembers = studentMembers;
-	}
+    // TODO SC10 - Is an annotation needed here?
+    @JsonIgnore
+    public Set<Student> getStudentMembers() {
+        return studentMembers;
+    }
 
-	public boolean isEditable() {
-		return editable;
-	}
+    public void setStudentMembers(Set<Student> studentMembers) {
+        this.studentMembers = studentMembers;
+    }
 
-	public void setEditable(boolean editable) {
-		this.editable = editable;
-	}
+    public boolean isEditable() {
+        return editable;
+    }
 
-	//Inherited hashCode/equals is sufficient for this Entity class
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("StudentClub[id = ").append(id).append(", name = ").append(name).append(", desc = ")
-				.append(desc).append(", isAcademic = ").append(isAcademic)
-				.append(", created = ").append(created).append(", updated = ").append(updated).append(", version = ").append(version).append("]");
-		return builder.toString();
-	}
-	
+    // Inherited hashCode/equals is sufficient for this entity class.
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("StudentClub[id = ")
+            .append(id)
+            .append(", name = ")
+            .append(name)
+            .append(", desc = ")
+            .append(desc)
+            .append(", isAcademic = ")
+            .append(isAcademic)
+            .append(", created = ")
+            .append(created)
+            .append(", updated = ")
+            .append(updated)
+            .append(", version = ")
+            .append(version)
+            .append("]");
+
+        return builder.toString();
+    }
 }
