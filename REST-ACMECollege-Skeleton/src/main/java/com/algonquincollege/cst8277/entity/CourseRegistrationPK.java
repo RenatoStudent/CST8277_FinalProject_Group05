@@ -21,6 +21,7 @@ import jakarta.persistence.Embeddable;
  */
 //TODO CRPK01 - What annotation is used to define an object which can be embedded in other entities?
 //Hint - @Access is used to establish where the annotation for JPA will be placed, field or properties. 
+@Embeddable
 @Access(AccessType.FIELD)
 public class CourseRegistrationPK implements Serializable {
 	// Default serial version id, required for serializable classes.
@@ -81,7 +82,7 @@ public class CourseRegistrationPK implements Serializable {
 			return false;
 		}
 		if (obj instanceof CourseRegistrationPK otherCourseRegistrationPK) {
-			// See comment (above) in hashCode():  Compare using only member variables that are
+			// See comment (above) in hashCode():  Compare only member variables that are
 			// truly part of an object's identity
 			return Objects.equals(this.getStudentId(), otherCourseRegistrationPK.getStudentId()) &&
 				Objects.equals(this.getCourseId(),  otherCourseRegistrationPK.getCourseId());
