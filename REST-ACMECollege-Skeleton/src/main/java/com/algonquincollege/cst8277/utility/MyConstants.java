@@ -43,9 +43,19 @@ public interface MyConstants {
     public static final String PROGRAM_RESOURCE_PATH = SLASH + "program";
     
     //TODO MC01 - Add your own constants here.
+    public static final String COURSE_RESOURCE_NAME = "course";
+    public static final String PROFESSOR_RESOURCE_NAME = "professor";
+    public static final String STUDENTCLUB_RESOURCE_NAME = "studentclub";
+    public static final String COURSEREGISTRATION_RESOURCE_NAME = "courseregistration";
+    public static final String LETTERGRADE_RESOURCE_PATH = SLASH + "lettergrade";
+    public static final String STUDENT_ID_PATH_ELEMENT = "studentId";
+    public static final String COURSE_ID_PATH_ELEMENT = "courseId";
+    public static final String STUDENT_COURSE_PATH =
+        SLASH + "student" + SLASH + "{" + STUDENT_ID_PATH_ELEMENT + "}"
+      + SLASH + "course" + SLASH + "{" + COURSE_ID_PATH_ELEMENT + "}";
+    public static final String CLUB_ID_PATH_ELEMENT = "clubId";
+    public static final String PARAM2 = "param2";
 
-    
-    
     public static final String ACCESS_REQUIRES_AUTHENTICATION =
             "Access requires authentication";
     public static final String ACCESS_TO_THE_SPECIFIED_RESOURCE_HAS_BEEN_FORBIDDEN =
