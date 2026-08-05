@@ -1,7 +1,7 @@
 /********************************************************************************************************
- * File:  MainController.java
+ * File: MainController.java
  * Course Materials CST 8277
- * 
+ *
  * @author Teddy Yap
  *
  */
@@ -21,53 +21,93 @@ import jakarta.inject.Named;
 @Named("mainController")
 @SessionScoped
 public class MainController implements Serializable, MyConstants {
-    /** explicit set serialVersionUID */
+
     private static final long serialVersionUID = 1L;
 
-    public static final String NONE = "None";
-    public static final String STUDENT_MANAGEMENT = "Student Management";
-    public static final String COURSE_MANAGEMENT = "Course Management";
-    public static final String PROFESSOR_MANAGEMENT = "Professor Management";
-    public static final String STUDENT_CLUB_MANAGEMENT = "Student Club Management";
-    public static final String COURSE_REGISTRATION = "Course Registration";
-    public static final String ASSIGN_PROFESSOR = "Assign Professor";
-    public static final String ASSIGN_GRADE = "Assign Grade";
-    public static final String CLUB_MEMBERSHIP_REGISTRATION = "Club Membership Registration";
-    
+    public static final String NONE =
+        "None";
+
+    public static final String STUDENT_MANAGEMENT =
+        "Student Management";
+
+    public static final String COURSE_MANAGEMENT =
+        "Course Management";
+
+    public static final String PROFESSOR_MANAGEMENT =
+        "Professor Management";
+
+    public static final String STUDENT_CLUB_MANAGEMENT =
+        "Student Club Management";
+
+    public static final String COURSE_REGISTRATION =
+        "Course Registration";
+
+    public static final String ASSIGN_PROFESSOR =
+        "Assign Professor";
+
+    public static final String ASSIGN_GRADE =
+        "Assign Grade";
+
+    public static final String CLUB_MEMBERSHIP_REGISTRATION =
+        "Club Membership Registration";
+
     @Inject
     protected StudentController studentController;
 
-    //TODO Add your own controllers here
-    
-    protected String optionChosen = "None";
-    protected List<String> options = Stream.of(NONE, STUDENT_MANAGEMENT, COURSE_MANAGEMENT, PROFESSOR_MANAGEMENT, STUDENT_CLUB_MANAGEMENT, COURSE_REGISTRATION, ASSIGN_PROFESSOR, ASSIGN_GRADE, CLUB_MEMBERSHIP_REGISTRATION).collect(Collectors.toList());
-    
+    @Inject
+    protected CourseController courseController;
+
+    protected String optionChosen = NONE;
+
+    protected List<String> options = Stream.of(
+        NONE,
+        STUDENT_MANAGEMENT,
+        COURSE_MANAGEMENT,
+        PROFESSOR_MANAGEMENT,
+        STUDENT_CLUB_MANAGEMENT,
+        COURSE_REGISTRATION,
+        ASSIGN_PROFESSOR,
+        ASSIGN_GRADE,
+        CLUB_MEMBERSHIP_REGISTRATION
+    ).collect(Collectors.toList());
+
     public MainController() {
-    	super();
+        super();
     }
-    
+
     public String getOptionChosen() {
-    	return optionChosen;
+        return optionChosen;
     }
-    
-    public void setOptionChosen(String option) {
-    	optionChosen = option;
+
+    public void setOptionChosen(String optionChosen) {
+        this.optionChosen = optionChosen;
     }
-    
+
     public List<String> getOptions() {
-    	return options;
+        return options;
     }
-    
+
     public String submitForm() {
-    	return null; //current page
+        loadData();
+        return null;
     }
-    
+
     public void loadData() {
-    	switch (optionChosen) {
-    		case STUDENT_MANAGEMENT: studentController.loadStudents();
-    		break;
-    		//TODO Add your own cases here
-    	}
+        if (optionChosen == null) {
+            return;
+        }
+
+        switch (optionChosen) {
+            case STUDENT_MANAGEMENT:
+                studentController.loadStudents();
+                break;
+
+            case COURSE_MANAGEMENT:
+                courseController.loadCourses();
+                break;
+
+            default:
+                break;
+        }
     }
-    
 }
