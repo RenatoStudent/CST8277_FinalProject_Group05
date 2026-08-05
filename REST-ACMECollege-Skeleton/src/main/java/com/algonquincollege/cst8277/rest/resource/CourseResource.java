@@ -7,6 +7,7 @@
 package com.algonquincollege.cst8277.rest.resource;
 
 import static com.algonquincollege.cst8277.utility.MyConstants.ADMIN_ROLE;
+import static com.algonquincollege.cst8277.utility.MyConstants.USER_ROLE;
 import static com.algonquincollege.cst8277.utility.MyConstants.COURSE_RESOURCE_NAME;
 import static com.algonquincollege.cst8277.utility.MyConstants.RESOURCE_PATH_ID_ELEMENT;
 import static com.algonquincollege.cst8277.utility.MyConstants.RESOURCE_PATH_ID_PATH;
@@ -45,7 +46,7 @@ public class CourseResource {
 
     //TODO CR01 - Add REST endpoint to retrieve all courses.
     @GET
-    @RolesAllowed({ADMIN_ROLE})
+    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
     public Response getCourses() {
         LOG.debug("retrieving all courses");
 
@@ -56,7 +57,7 @@ public class CourseResource {
 
     //TODO CR02 - Add REST endpoint to retrieve a specific course.
     @GET
-    @RolesAllowed({ADMIN_ROLE})
+    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
     @Path(RESOURCE_PATH_ID_PATH)
     public Response getCourseById(
         @PathParam(RESOURCE_PATH_ID_ELEMENT) int id

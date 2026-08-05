@@ -134,5 +134,4 @@ public class StudentResource {
     	response = Response.ok(programs).build();
     	return response;
     }
-    
 }
