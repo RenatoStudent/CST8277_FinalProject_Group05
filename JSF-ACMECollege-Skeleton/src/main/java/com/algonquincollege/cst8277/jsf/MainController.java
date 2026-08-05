@@ -57,6 +57,9 @@ public class MainController implements Serializable, MyConstants {
     @Inject
     protected CourseController courseController;
 
+    @Inject
+    protected ProfessorController professorController;
+
     protected String optionChosen = NONE;
 
     protected List<String> options = Stream.of(
@@ -79,7 +82,9 @@ public class MainController implements Serializable, MyConstants {
         return optionChosen;
     }
 
-    public void setOptionChosen(String optionChosen) {
+    public void setOptionChosen(
+        String optionChosen
+    ) {
         this.optionChosen = optionChosen;
     }
 
@@ -104,6 +109,10 @@ public class MainController implements Serializable, MyConstants {
 
             case COURSE_MANAGEMENT:
                 courseController.loadCourses();
+                break;
+
+            case PROFESSOR_MANAGEMENT:
+                professorController.loadProfessors();
                 break;
 
             default:
