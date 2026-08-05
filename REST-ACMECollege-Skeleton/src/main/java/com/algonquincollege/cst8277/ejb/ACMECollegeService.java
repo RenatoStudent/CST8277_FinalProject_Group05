@@ -31,9 +31,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.algonquincollege.cst8277.entity.Course;
+import com.algonquincollege.cst8277.entity.Professor;
 import com.algonquincollege.cst8277.entity.SecurityRole;
 import com.algonquincollege.cst8277.entity.SecurityUser;
 import com.algonquincollege.cst8277.entity.Student;
+import com.algonquincollege.cst8277.entity.StudentClub;
 
 import jakarta.ejb.Singleton;
 import jakarta.inject.Inject;
@@ -48,7 +50,7 @@ import jakarta.transaction.Transactional;
 @SuppressWarnings("unused")
 
 /**
- * Stateless Singleton EJB Bean - ACMECollegeService
+ * Stateless Singleton EJB Bean - ACMECollegeService.
  */
 @Singleton
 public class ACMECollegeService implements Serializable {
@@ -298,5 +300,187 @@ public class ACMECollegeService implements Serializable {
         }
 
         return course;
+    }
+
+    /*
+     * Professor service methods
+     */
+
+    public List<Professor> getAllProfessors() {
+        return em.createNamedQuery(
+                Professor.ALL_PROFESSORS_QUERY,
+                Professor.class
+            )
+            .getResultList();
+    }
+
+    public Professor getProfessorById(int id) {
+        return em.find(Professor.class, id);
+    }
+
+    @Transactional
+    public Professor persistProfessor(
+        Professor newProfessor
+    ) {
+        em.persist(newProfessor);
+        em.flush();
+
+        return newProfessor;
+    }
+
+    @Transactional
+    public Professor updateProfessorById(
+        int id,
+        Professor professorWithUpdates
+    ) {
+        Professor professorToBeUpdated =
+            getProfessorById(id);
+
+        if (professorToBeUpdated != null) {
+            professorToBeUpdated.setFirstName(
+                professorWithUpdates.getFirstName()
+            );
+
+            professorToBeUpdated.setLastName(
+                professorWithUpdates.getLastName()
+            );
+
+            professorToBeUpdated.setDegree(
+                professorWithUpdates.getDegree()
+            );
+
+            em.flush();
+        }
+
+        return professorToBeUpdated;
+    }
+
+    @Transactional
+    public Professor deleteProfessorById(int id) {
+        Professor professor = getProfessorById(id);
+
+        if (professor != null) {
+            em.remove(professor);
+            em.flush();
+        }
+
+        return professor;
+    }
+
+    /*
+     * Student Club service methods
+     */
+
+    /**
+     * Retrieves all student clubs with their member relationships loaded.
+     *
+     * @return all student clubs
+     */
+    public List<StudentClub> getAllStudentClubs() {
+        return em.createNamedQuery(
+                StudentClub.ALL_STUDENT_CLUBS_QUERY,
+                StudentClub.class
+            )
+            .getResultList();
+    }
+
+    /**
+     * Retrieves a student club by ID.
+     *
+     * @param id club ID
+     * @return matching club, or null if not found
+     */
+    public StudentClub getStudentClubById(int id) {
+        List<StudentClub> clubs = em.createNamedQuery(
+                StudentClub.STUDENT_CLUB_BY_ID_QUERY,
+                StudentClub.class
+            )
+            .setParameter(PARAM1, id)
+            .getResultList();
+
+        if (clubs.isEmpty()) {
+            return null;
+        }
+
+        return clubs.get(0);
+    }
+
+    /**
+     * Creates a student club.
+     *
+     * @param newStudentClub club to persist
+     * @return persisted club
+     */
+    @Transactional
+    public StudentClub persistStudentClub(
+        StudentClub newStudentClub
+    ) {
+        em.persist(newStudentClub);
+        em.flush();
+
+        return newStudentClub;
+    }
+
+    /**
+     * Updates a student club's name and description.
+     *
+     * The academic/non-academic discriminator is not changed because
+     * changing an entity's inheritance subtype after persistence is unsafe.
+     *
+     * @param id club ID
+     * @param studentClubWithUpdates updated information
+     * @return updated club, or null if not found
+     */
+    @Transactional
+    public StudentClub updateStudentClubById(
+        int id,
+        StudentClub studentClubWithUpdates
+    ) {
+        StudentClub clubToBeUpdated =
+            getStudentClubById(id);
+
+        if (clubToBeUpdated != null) {
+            clubToBeUpdated.setName(
+                studentClubWithUpdates.getName()
+            );
+
+            clubToBeUpdated.setDesc(
+                studentClubWithUpdates.getDesc()
+            );
+
+            em.flush();
+        }
+
+        return clubToBeUpdated;
+    }
+
+    /**
+     * Deletes a student club and removes any club-membership rows first.
+     *
+     * Student owns the many-to-many relationship, so the club must be
+     * removed from each student's studentClubs collection.
+     *
+     * @param id club ID
+     * @return deleted club, or null if not found
+     */
+    @Transactional
+    public StudentClub deleteStudentClubById(int id) {
+        StudentClub club = getStudentClubById(id);
+
+        if (club != null) {
+            for (Student student :
+                new ArrayList<>(club.getStudentMembers())) {
+
+                student.getStudentClubs().remove(club);
+            }
+
+            club.getStudentMembers().clear();
+
+            em.flush();
+            em.remove(club);
+            em.flush();
+        }
+
+        return club;
     }
 }
