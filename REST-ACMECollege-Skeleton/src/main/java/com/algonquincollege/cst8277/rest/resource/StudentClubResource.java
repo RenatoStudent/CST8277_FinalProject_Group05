@@ -8,9 +8,11 @@
 package com.algonquincollege.cst8277.rest.resource;
 
 import static com.algonquincollege.cst8277.utility.MyConstants.ADMIN_ROLE;
+import static com.algonquincollege.cst8277.utility.MyConstants.CLUB_ID_PATH_ELEMENT;
 import static com.algonquincollege.cst8277.utility.MyConstants.RESOURCE_PATH_ID_ELEMENT;
 import static com.algonquincollege.cst8277.utility.MyConstants.RESOURCE_PATH_ID_PATH;
 import static com.algonquincollege.cst8277.utility.MyConstants.STUDENTCLUB_RESOURCE_NAME;
+import static com.algonquincollege.cst8277.utility.MyConstants.STUDENT_ID_PATH_ELEMENT;
 import static com.algonquincollege.cst8277.utility.MyConstants.USER_ROLE;
 
 import java.util.List;
@@ -19,6 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.algonquincollege.cst8277.ejb.ACMECollegeService;
+import com.algonquincollege.cst8277.entity.Student;
 import com.algonquincollege.cst8277.entity.StudentClub;
 
 import jakarta.annotation.security.RolesAllowed;
@@ -36,7 +39,8 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
 /**
- * REST resource providing CRUD operations for StudentClub entities.
+ * REST resource providing CRUD and membership operations for StudentClub
+ * entities.
  */
 @Path(STUDENTCLUB_RESOURCE_NAME)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -45,6 +49,13 @@ public class StudentClubResource {
 
     private static final Logger LOG =
         LogManager.getLogger();
+
+    private static final String CLUB_MEMBERS_PATH =
+        "/{" + CLUB_ID_PATH_ELEMENT + "}/student";
+
+    private static final String CLUB_MEMBER_PATH =
+        CLUB_MEMBERS_PATH
+            + "/{" + STUDENT_ID_PATH_ELEMENT + "}";
 
     @EJB
     protected ACMECollegeService service;
@@ -95,6 +106,39 @@ public class StudentClubResource {
     }
 
     /**
+     * Retrieves the students registered in a particular club.
+     *
+     * Endpoint:
+     * GET /studentclub/{clubId}/student
+     *
+     * @param clubId club ID
+     * @return HTTP 200 with club members, otherwise HTTP 404
+     */
+    @GET
+    @Path(CLUB_MEMBERS_PATH)
+    @RolesAllowed({ADMIN_ROLE})
+    public Response getStudentClubMembers(
+        @PathParam(CLUB_ID_PATH_ELEMENT)
+        int clubId
+    ) {
+        LOG.debug(
+            "Retrieving members of student club {}",
+            clubId
+        );
+
+        List<Student> members =
+            service.getStudentClubMembers(clubId);
+
+        if (members == null) {
+            return Response
+                .status(Status.NOT_FOUND)
+                .build();
+        }
+
+        return Response.ok(members).build();
+    }
+
+    /**
      * Only an administrator may create a student club.
      *
      * @param newStudentClub club information
@@ -114,6 +158,47 @@ public class StudentClubResource {
             service.persistStudentClub(newStudentClub);
 
         return Response.ok(persistedClub).build();
+    }
+
+    /**
+     * Registers a student as a member of a club.
+     *
+     * Endpoint:
+     * POST /studentclub/{clubId}/student/{studentId}
+     *
+     * @param clubId club ID
+     * @param studentId student ID
+     * @return HTTP 200 if registered, otherwise HTTP 404
+     */
+    @POST
+    @Path(CLUB_MEMBER_PATH)
+    @RolesAllowed({ADMIN_ROLE})
+    public Response addStudentToClub(
+        @PathParam(CLUB_ID_PATH_ELEMENT)
+        int clubId,
+
+        @PathParam(STUDENT_ID_PATH_ELEMENT)
+        int studentId
+    ) {
+        LOG.debug(
+            "Adding student {} to club {}",
+            studentId,
+            clubId
+        );
+
+        StudentClub updatedClub =
+            service.addStudentToClub(
+                studentId,
+                clubId
+            );
+
+        if (updatedClub == null) {
+            return Response
+                .status(Status.NOT_FOUND)
+                .build();
+        }
+
+        return Response.ok(updatedClub).build();
     }
 
     /**
@@ -139,6 +224,47 @@ public class StudentClubResource {
             service.updateStudentClubById(
                 id,
                 studentClubWithUpdates
+            );
+
+        if (updatedClub == null) {
+            return Response
+                .status(Status.NOT_FOUND)
+                .build();
+        }
+
+        return Response.ok(updatedClub).build();
+    }
+
+    /**
+     * Removes a student from a club.
+     *
+     * Endpoint:
+     * DELETE /studentclub/{clubId}/student/{studentId}
+     *
+     * @param clubId club ID
+     * @param studentId student ID
+     * @return HTTP 200 if removed, otherwise HTTP 404
+     */
+    @DELETE
+    @Path(CLUB_MEMBER_PATH)
+    @RolesAllowed({ADMIN_ROLE})
+    public Response removeStudentFromClub(
+        @PathParam(CLUB_ID_PATH_ELEMENT)
+        int clubId,
+
+        @PathParam(STUDENT_ID_PATH_ELEMENT)
+        int studentId
+    ) {
+        LOG.debug(
+            "Removing student {} from club {}",
+            studentId,
+            clubId
+        );
+
+        StudentClub updatedClub =
+            service.removeStudentFromClub(
+                studentId,
+                clubId
             );
 
         if (updatedClub == null) {

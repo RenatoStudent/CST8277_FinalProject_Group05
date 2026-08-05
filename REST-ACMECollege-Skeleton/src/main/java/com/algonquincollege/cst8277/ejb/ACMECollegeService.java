@@ -473,7 +473,80 @@ public class ACMECollegeService implements Serializable {
 
         return club;
     }
+    /**
+     * Retrieves the students currently registered in a club.
+     *
+     * @param clubId student club ID
+     * @return club members, or null if the club does not exist
+     */
+    public List<Student> getStudentClubMembers(int clubId) {
+        StudentClub club = getStudentClubById(clubId);
 
+        if (club == null) {
+            return null;
+        }
+
+        return new ArrayList<>(
+            club.getStudentMembers()
+        );
+    }
+
+    /**
+     * Registers an existing student as a member of an existing club.
+     *
+     * Student is the owning side of the many-to-many relationship, so the
+     * club must be added to the student's studentClubs collection.
+     *
+     * @param studentId student ID
+     * @param clubId student club ID
+     * @return updated club, or null if the student or club does not exist
+     */
+    @Transactional
+    public StudentClub addStudentToClub(
+        int studentId,
+        int clubId
+    ) {
+        Student student = getStudentById(studentId);
+        StudentClub club = getStudentClubById(clubId);
+
+        if (student == null || club == null) {
+            return null;
+        }
+
+        student.getStudentClubs().add(club);
+        club.getStudentMembers().add(student);
+
+        em.flush();
+
+        return getStudentClubById(clubId);
+    }
+
+    /**
+     * Removes a student from a club.
+     *
+     * @param studentId student ID
+     * @param clubId student club ID
+     * @return updated club, or null if the student or club does not exist
+     */
+    @Transactional
+    public StudentClub removeStudentFromClub(
+        int studentId,
+        int clubId
+    ) {
+        Student student = getStudentById(studentId);
+        StudentClub club = getStudentClubById(clubId);
+
+        if (student == null || club == null) {
+            return null;
+        }
+
+        student.getStudentClubs().remove(club);
+        club.getStudentMembers().remove(student);
+
+        em.flush();
+
+        return getStudentClubById(clubId);
+    }
     /*
      * Course Registration service methods
      */

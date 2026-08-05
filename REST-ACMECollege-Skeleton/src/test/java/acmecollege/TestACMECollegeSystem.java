@@ -906,4 +906,107 @@ public class TestACMECollegeSystem {
             is(404)
         );
     }
+
+    /**
+     * Confirms an ADMIN_ROLE account can add a student to a club.
+     */
+    @Test
+    public void test32_add_student_to_club_as_admin() {
+        Response response = webTarget
+            .register(adminAuth)
+            .path(
+                STUDENTCLUB_RESOURCE_NAME
+                    + "/1/student/1"
+            )
+            .request()
+            .post(Entity.json(""));
+
+        assertThat(response.getStatus(), is(200));
+    }
+
+    /**
+     * Confirms an ADMIN_ROLE account can retrieve the members of a club.
+     */
+    @Test
+    public void test33_get_student_club_members_as_admin() {
+        Response response = webTarget
+            .register(adminAuth)
+            .path(
+                STUDENTCLUB_RESOURCE_NAME
+                    + "/1/student"
+            )
+            .request()
+            .get();
+
+        assertThat(response.getStatus(), is(200));
+
+        List<Student> members = response.readEntity(
+            new GenericType<List<Student>>() {
+            }
+        );
+
+        assertThat(members, is(not(empty())));
+
+        boolean containsStudentOne = members
+            .stream()
+            .anyMatch(student -> student.getId() == 1);
+
+        assertThat(containsStudentOne, is(true));
+    }
+
+    /**
+     * Confirms a USER_ROLE account cannot modify club membership.
+     */
+    @Test
+    public void test34_add_student_to_club_as_user_should_fail() {
+        Response response = webTarget
+            .register(userAuth)
+            .path(
+                STUDENTCLUB_RESOURCE_NAME
+                    + "/1/student/2"
+            )
+            .request()
+            .post(Entity.json(""));
+
+        assertThat(response.getStatus(), is(403));
+    }
+
+    /**
+     * Confirms an ADMIN_ROLE account can remove a student from a club.
+     */
+    @Test
+    public void test35_remove_student_from_club_as_admin() {
+        Response deleteResponse = webTarget
+            .register(adminAuth)
+            .path(
+                STUDENTCLUB_RESOURCE_NAME
+                    + "/1/student/1"
+            )
+            .request()
+            .delete();
+
+        assertThat(deleteResponse.getStatus(), is(200));
+
+        Response getResponse = webTarget
+            .register(adminAuth)
+            .path(
+                STUDENTCLUB_RESOURCE_NAME
+                    + "/1/student"
+            )
+            .request()
+            .get();
+
+        assertThat(getResponse.getStatus(), is(200));
+
+        List<Student> members = getResponse.readEntity(
+            new GenericType<List<Student>>() {
+            }
+        );
+
+        boolean containsStudentOne = members
+            .stream()
+            .anyMatch(student -> student.getId() == 1);
+
+        assertThat(containsStudentOne, is(false));
+    }
 }
