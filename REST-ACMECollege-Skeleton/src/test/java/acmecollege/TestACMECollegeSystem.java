@@ -10,17 +10,19 @@ package acmecollege;
 
 import static com.algonquincollege.cst8277.utility.MyConstants.APPLICATION_API_VERSION;
 import static com.algonquincollege.cst8277.utility.MyConstants.APPLICATION_CONTEXT_ROOT;
+import static com.algonquincollege.cst8277.utility.MyConstants.COURSEREGISTRATION_RESOURCE_NAME;
 import static com.algonquincollege.cst8277.utility.MyConstants.COURSE_RESOURCE_NAME;
 import static com.algonquincollege.cst8277.utility.MyConstants.DEFAULT_ADMIN_USER;
 import static com.algonquincollege.cst8277.utility.MyConstants.DEFAULT_ADMIN_USER_PASSWORD;
 import static com.algonquincollege.cst8277.utility.MyConstants.DEFAULT_USER;
 import static com.algonquincollege.cst8277.utility.MyConstants.DEFAULT_USER_PASSWORD;
 import static com.algonquincollege.cst8277.utility.MyConstants.PROFESSOR_RESOURCE_NAME;
-import static com.algonquincollege.cst8277.utility.MyConstants.STUDENT_RESOURCE_NAME;
 import static com.algonquincollege.cst8277.utility.MyConstants.STUDENTCLUB_RESOURCE_NAME;
+import static com.algonquincollege.cst8277.utility.MyConstants.STUDENT_RESOURCE_NAME;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
@@ -41,6 +43,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import com.algonquincollege.cst8277.entity.Academic;
 import com.algonquincollege.cst8277.entity.Course;
+import com.algonquincollege.cst8277.entity.CourseRegistration;
 import com.algonquincollege.cst8277.entity.Professor;
 import com.algonquincollege.cst8277.entity.Student;
 import com.algonquincollege.cst8277.entity.StudentClub;
@@ -642,5 +645,265 @@ public class TestACMECollegeSystem {
             .delete();
 
         assertThat(response.getStatus(), is(200));
+    }
+
+    /**
+     * Confirms an ADMIN_ROLE account can list course registrations.
+     *
+     * The result may be empty before the create test runs.
+     */
+    @Test
+    public void test24_get_all_course_registrations_as_admin() {
+        Response response = webTarget
+            .register(adminAuth)
+            .path(COURSEREGISTRATION_RESOURCE_NAME)
+            .request()
+            .get();
+
+        assertThat(response.getStatus(), is(200));
+
+        List<CourseRegistration> registrations =
+            response.readEntity(
+                new GenericType<List<CourseRegistration>>() {
+                }
+            );
+
+        assertThat(
+            registrations,
+            is(not(nullValue()))
+        );
+    }
+
+    /**
+     * Confirms a USER_ROLE account cannot list course registrations.
+     */
+    @Test
+    public void test25_get_all_course_registrations_as_user_should_fail() {
+        Response response = webTarget
+            .register(userAuth)
+            .path(COURSEREGISTRATION_RESOURCE_NAME)
+            .request()
+            .get();
+
+        assertThat(response.getStatus(), is(403));
+    }
+
+    /**
+     * Confirms an ADMIN_ROLE account can create a course registration.
+     */
+    @Test
+    public void test26_create_course_registration_as_admin() {
+        Student student = new Student();
+        student.setId(1);
+
+        Course course = new Course();
+        course.setId(1);
+
+        CourseRegistration newRegistration =
+            new CourseRegistration();
+
+        newRegistration.setStudent(student);
+        newRegistration.setCourse(course);
+        newRegistration.setYear(2026);
+        newRegistration.setSemester("Fall");
+        newRegistration.setLetterGrade(null);
+
+        Response response = webTarget
+            .register(adminAuth)
+            .path(COURSEREGISTRATION_RESOURCE_NAME)
+            .request()
+            .post(Entity.json(newRegistration));
+
+        assertThat(response.getStatus(), is(200));
+
+        CourseRegistration persistedRegistration =
+            response.readEntity(CourseRegistration.class);
+
+        assertThat(
+            persistedRegistration.getId()
+                .getStudentId(),
+            is(1)
+        );
+
+        assertThat(
+            persistedRegistration.getId()
+                .getCourseId(),
+            is(1)
+        );
+
+        assertThat(
+            persistedRegistration.getYear(),
+            is(2026)
+        );
+
+        assertThat(
+            persistedRegistration.getSemester(),
+            is("Fall")
+        );
+    }
+
+    /**
+     * Confirms an ADMIN_ROLE account can retrieve a specific registration.
+     */
+    @Test
+    public void test27_get_specific_course_registration_as_admin() {
+        Response response = webTarget
+            .register(adminAuth)
+            .path(
+                COURSEREGISTRATION_RESOURCE_NAME
+                    + "/student/1/course/1"
+            )
+            .request()
+            .get();
+
+        assertThat(response.getStatus(), is(200));
+
+        CourseRegistration registration =
+            response.readEntity(CourseRegistration.class);
+
+        assertThat(
+            registration.getId().getStudentId(),
+            is(1)
+        );
+
+        assertThat(
+            registration.getId().getCourseId(),
+            is(1)
+        );
+    }
+
+    /**
+     * Confirms an ADMIN_ROLE account can assign a professor.
+     */
+    @Test
+    public void test28_assign_professor_to_course_registration() {
+        Professor professor = new Professor();
+        professor.setId(1);
+
+        Response response = webTarget
+            .register(adminAuth)
+            .path(
+                COURSEREGISTRATION_RESOURCE_NAME
+                    + "/student/1/course/1/professor"
+            )
+            .request()
+            .put(Entity.json(professor));
+
+        assertThat(response.getStatus(), is(200));
+
+        CourseRegistration registration =
+            response.readEntity(CourseRegistration.class);
+
+        assertThat(
+            registration.getProfessor(),
+            is(not(nullValue()))
+        );
+
+        assertThat(
+            registration.getProfessor().getId(),
+            is(1)
+        );
+    }
+
+    /**
+     * Confirms an ADMIN_ROLE account can assign a letter grade.
+     */
+    @Test
+    public void test29_assign_letter_grade_to_course_registration() {
+        Response response = webTarget
+            .register(adminAuth)
+            .path(
+                COURSEREGISTRATION_RESOURCE_NAME
+                    + "/student/1/course/1/grade"
+            )
+            .request()
+            .put(
+                Entity.entity(
+                    "A+",
+                    MediaType.TEXT_PLAIN_TYPE
+                )
+            );
+
+        assertThat(response.getStatus(), is(200));
+
+        CourseRegistration registration =
+            response.readEntity(CourseRegistration.class);
+
+        assertThat(
+            registration.getLetterGrade(),
+            is("A+")
+        );
+    }
+
+    /**
+     * Confirms an ADMIN_ROLE account can update the year and semester.
+     */
+    @Test
+    public void test30_update_course_registration_as_admin() {
+        CourseRegistration updates =
+            new CourseRegistration();
+
+        updates.setYear(2027);
+        updates.setSemester("Winter");
+
+        Response response = webTarget
+            .register(adminAuth)
+            .path(
+                COURSEREGISTRATION_RESOURCE_NAME
+                    + "/student/1/course/1"
+            )
+            .request()
+            .put(Entity.json(updates));
+
+        assertThat(response.getStatus(), is(200));
+
+        CourseRegistration registration =
+            response.readEntity(CourseRegistration.class);
+
+        assertThat(
+            registration.getYear(),
+            is(2027)
+        );
+
+        assertThat(
+            registration.getSemester(),
+            is("Winter")
+        );
+    }
+
+    /**
+     * Confirms an ADMIN_ROLE account can delete a registration.
+     *
+     * A follow-up request must return HTTP 404.
+     */
+    @Test
+    public void test31_delete_course_registration_as_admin() {
+        Response deleteResponse = webTarget
+            .register(adminAuth)
+            .path(
+                COURSEREGISTRATION_RESOURCE_NAME
+                    + "/student/1/course/1"
+            )
+            .request()
+            .delete();
+
+        assertThat(
+            deleteResponse.getStatus(),
+            is(200)
+        );
+
+        Response getResponse = webTarget
+            .register(adminAuth)
+            .path(
+                COURSEREGISTRATION_RESOURCE_NAME
+                    + "/student/1/course/1"
+            )
+            .request()
+            .get();
+
+        assertThat(
+            getResponse.getStatus(),
+            is(404)
+        );
     }
 }

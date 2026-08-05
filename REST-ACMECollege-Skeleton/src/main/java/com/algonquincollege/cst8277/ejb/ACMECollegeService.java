@@ -14,6 +14,7 @@ import static com.algonquincollege.cst8277.utility.MyConstants.DEFAULT_SALT_SIZE
 import static com.algonquincollege.cst8277.utility.MyConstants.DEFAULT_USER_PASSWORD;
 import static com.algonquincollege.cst8277.utility.MyConstants.DEFAULT_USER_PREFIX;
 import static com.algonquincollege.cst8277.utility.MyConstants.PARAM1;
+import static com.algonquincollege.cst8277.utility.MyConstants.PARAM2;
 import static com.algonquincollege.cst8277.utility.MyConstants.PROPERTY_ALGORITHM;
 import static com.algonquincollege.cst8277.utility.MyConstants.PROPERTY_ITERATIONS;
 import static com.algonquincollege.cst8277.utility.MyConstants.PROPERTY_KEY_SIZE;
@@ -31,6 +32,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.algonquincollege.cst8277.entity.Course;
+import com.algonquincollege.cst8277.entity.CourseRegistration;
 import com.algonquincollege.cst8277.entity.Professor;
 import com.algonquincollege.cst8277.entity.SecurityRole;
 import com.algonquincollege.cst8277.entity.SecurityUser;
@@ -74,7 +76,8 @@ public class ACMECollegeService implements Serializable {
 
     public List<Student> getAllStudents() {
         CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Student> cq = cb.createQuery(Student.class);
+        CriteriaQuery<Student> cq =
+            cb.createQuery(Student.class);
 
         cq.select(cq.from(Student.class));
 
@@ -93,7 +96,8 @@ public class ACMECollegeService implements Serializable {
 
     @Transactional
     public void buildUserForNewStudent(Student newStudent) {
-        SecurityUser userForNewStudent = new SecurityUser();
+        SecurityUser userForNewStudent =
+            new SecurityUser();
 
         userForNewStudent.setUsername(
             DEFAULT_USER_PREFIX
@@ -103,7 +107,8 @@ public class ACMECollegeService implements Serializable {
                 + newStudent.getLastName()
         );
 
-        Map<String, String> passwordProperties = new HashMap<>();
+        Map<String, String> passwordProperties =
+            new HashMap<>();
 
         passwordProperties.put(
             PROPERTY_ALGORITHM,
@@ -127,9 +132,10 @@ public class ACMECollegeService implements Serializable {
 
         pbAndjPasswordHash.initialize(passwordProperties);
 
-        String passwordHash = pbAndjPasswordHash.generate(
-            DEFAULT_USER_PASSWORD.toCharArray()
-        );
+        String passwordHash =
+            pbAndjPasswordHash.generate(
+                DEFAULT_USER_PASSWORD.toCharArray()
+            );
 
         userForNewStudent.setPwHash(passwordHash);
         userForNewStudent.setStudent(newStudent);
@@ -152,7 +158,8 @@ public class ACMECollegeService implements Serializable {
         int id,
         Student studentWithUpdates
     ) {
-        Student studentToBeUpdated = getStudentById(id);
+        Student studentToBeUpdated =
+            getStudentById(id);
 
         if (studentToBeUpdated != null) {
             studentToBeUpdated.setFirstName(
@@ -202,9 +209,13 @@ public class ACMECollegeService implements Serializable {
                     securityUsers.get(0);
 
                 for (SecurityRole role :
-                    new ArrayList<>(securityUser.getRoles())) {
+                    new ArrayList<>(
+                        securityUser.getRoles()
+                    )) {
 
-                    role.getUsers().remove(securityUser);
+                    role.getUsers().remove(
+                        securityUser
+                    );
                 }
 
                 securityUser.getRoles().clear();
@@ -222,7 +233,8 @@ public class ACMECollegeService implements Serializable {
 
     @SuppressWarnings("unchecked")
     public List<String> getAllPrograms() {
-        List<String> programs = new ArrayList<>();
+        List<String> programs =
+            new ArrayList<>();
 
         try {
             programs = (List<String>) em
@@ -230,7 +242,10 @@ public class ACMECollegeService implements Serializable {
                 .getResultList();
         }
         catch (Exception e) {
-            LOG.debug("Unable to retrieve programs", e);
+            LOG.debug(
+                "Unable to retrieve programs",
+                e
+            );
         }
 
         return programs;
@@ -241,7 +256,9 @@ public class ACMECollegeService implements Serializable {
      */
 
     public List<Course> getAllCourses() {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaBuilder cb =
+            em.getCriteriaBuilder();
+
         CriteriaQuery<Course> cq =
             cb.createQuery(Course.class);
 
@@ -265,7 +282,8 @@ public class ACMECollegeService implements Serializable {
         int id,
         Course courseWithUpdates
     ) {
-        Course courseToBeUpdated = getCourseById(id);
+        Course courseToBeUpdated =
+            getCourseById(id);
 
         if (courseToBeUpdated != null) {
             courseToBeUpdated.setCourseCode(
@@ -357,7 +375,8 @@ public class ACMECollegeService implements Serializable {
 
     @Transactional
     public Professor deleteProfessorById(int id) {
-        Professor professor = getProfessorById(id);
+        Professor professor =
+            getProfessorById(id);
 
         if (professor != null) {
             em.remove(professor);
@@ -371,11 +390,6 @@ public class ACMECollegeService implements Serializable {
      * Student Club service methods
      */
 
-    /**
-     * Retrieves all student clubs with their member relationships loaded.
-     *
-     * @return all student clubs
-     */
     public List<StudentClub> getAllStudentClubs() {
         return em.createNamedQuery(
                 StudentClub.ALL_STUDENT_CLUBS_QUERY,
@@ -384,19 +398,14 @@ public class ACMECollegeService implements Serializable {
             .getResultList();
     }
 
-    /**
-     * Retrieves a student club by ID.
-     *
-     * @param id club ID
-     * @return matching club, or null if not found
-     */
     public StudentClub getStudentClubById(int id) {
-        List<StudentClub> clubs = em.createNamedQuery(
-                StudentClub.STUDENT_CLUB_BY_ID_QUERY,
-                StudentClub.class
-            )
-            .setParameter(PARAM1, id)
-            .getResultList();
+        List<StudentClub> clubs =
+            em.createNamedQuery(
+                    StudentClub.STUDENT_CLUB_BY_ID_QUERY,
+                    StudentClub.class
+                )
+                .setParameter(PARAM1, id)
+                .getResultList();
 
         if (clubs.isEmpty()) {
             return null;
@@ -405,12 +414,6 @@ public class ACMECollegeService implements Serializable {
         return clubs.get(0);
     }
 
-    /**
-     * Creates a student club.
-     *
-     * @param newStudentClub club to persist
-     * @return persisted club
-     */
     @Transactional
     public StudentClub persistStudentClub(
         StudentClub newStudentClub
@@ -421,16 +424,6 @@ public class ACMECollegeService implements Serializable {
         return newStudentClub;
     }
 
-    /**
-     * Updates a student club's name and description.
-     *
-     * The academic/non-academic discriminator is not changed because
-     * changing an entity's inheritance subtype after persistence is unsafe.
-     *
-     * @param id club ID
-     * @param studentClubWithUpdates updated information
-     * @return updated club, or null if not found
-     */
     @Transactional
     public StudentClub updateStudentClubById(
         int id,
@@ -454,24 +447,21 @@ public class ACMECollegeService implements Serializable {
         return clubToBeUpdated;
     }
 
-    /**
-     * Deletes a student club and removes any club-membership rows first.
-     *
-     * Student owns the many-to-many relationship, so the club must be
-     * removed from each student's studentClubs collection.
-     *
-     * @param id club ID
-     * @return deleted club, or null if not found
-     */
     @Transactional
-    public StudentClub deleteStudentClubById(int id) {
-        StudentClub club = getStudentClubById(id);
+    public StudentClub deleteStudentClubById(
+        int id
+    ) {
+        StudentClub club =
+            getStudentClubById(id);
 
         if (club != null) {
             for (Student student :
-                new ArrayList<>(club.getStudentMembers())) {
+                new ArrayList<>(
+                    club.getStudentMembers()
+                )) {
 
-                student.getStudentClubs().remove(club);
+                student.getStudentClubs()
+                    .remove(club);
             }
 
             club.getStudentMembers().clear();
@@ -482,5 +472,252 @@ public class ACMECollegeService implements Serializable {
         }
 
         return club;
+    }
+
+    /*
+     * Course Registration service methods
+     */
+
+    /**
+     * Retrieves all course registrations.
+     *
+     * @return all course registrations
+     */
+    public List<CourseRegistration>
+        getAllCourseRegistrations() {
+
+        return em.createNamedQuery(
+                CourseRegistration
+                    .ALL_COURSE_REGISTRATIONS_QUERY_NAME,
+                CourseRegistration.class
+            )
+            .getResultList();
+    }
+
+    /**
+     * Retrieves a specific registration using its student and course IDs.
+     *
+     * @param studentId student ID
+     * @param courseId course ID
+     * @return matching registration, or null if it does not exist
+     */
+    public CourseRegistration getCourseRegistration(
+        int studentId,
+        int courseId
+    ) {
+        List<CourseRegistration> registrations =
+            em.createNamedQuery(
+                    CourseRegistration
+                        .QUERY_SPECIFIC_COURSE_REGISTRATION,
+                    CourseRegistration.class
+                )
+                .setParameter(PARAM1, studentId)
+                .setParameter(PARAM2, courseId)
+                .getResultList();
+
+        if (registrations.isEmpty()) {
+            return null;
+        }
+
+        return registrations.get(0);
+    }
+
+    /**
+     * Creates a registration between an existing student and course.
+     *
+     * @param studentId student ID
+     * @param courseId course ID
+     * @param newRegistration registration information
+     * @return persisted registration, or null when the student or course
+     *         cannot be found
+     */
+    @Transactional
+    public CourseRegistration persistCourseRegistration(
+        int studentId,
+        int courseId,
+        CourseRegistration newRegistration
+    ) {
+        Student student =
+            getStudentById(studentId);
+
+        Course course =
+            getCourseById(courseId);
+
+        if (student == null || course == null) {
+            return null;
+        }
+
+        if (getCourseRegistration(
+            studentId,
+            courseId
+        ) != null) {
+
+            return null;
+        }
+
+        newRegistration.setStudent(student);
+        newRegistration.setCourse(course);
+
+        /*
+         * The professor must be a managed entity when one is supplied.
+         */
+        if (newRegistration.getProfessor() != null) {
+            Professor professor =
+                getProfessorById(
+                    newRegistration
+                        .getProfessor()
+                        .getId()
+                );
+
+            newRegistration.setProfessor(professor);
+        }
+
+        em.persist(newRegistration);
+        em.flush();
+
+        return getCourseRegistration(
+            studentId,
+            courseId
+        );
+    }
+
+    /**
+     * Updates the year and semester of an existing registration.
+     *
+     * Professor and letter grade are managed by separate methods below.
+     *
+     * @param studentId student ID
+     * @param courseId course ID
+     * @param registrationWithUpdates updated registration information
+     * @return updated registration, or null if not found
+     */
+    @Transactional
+    public CourseRegistration updateCourseRegistration(
+        int studentId,
+        int courseId,
+        CourseRegistration registrationWithUpdates
+    ) {
+        CourseRegistration registration =
+            getCourseRegistration(
+                studentId,
+                courseId
+            );
+
+        if (registration != null) {
+            registration.setYear(
+                registrationWithUpdates.getYear()
+            );
+
+            registration.setSemester(
+                registrationWithUpdates.getSemester()
+            );
+
+            em.flush();
+        }
+
+        return registration;
+    }
+
+    /**
+     * Assigns a professor to an existing course registration.
+     *
+     * @param studentId student ID
+     * @param courseId course ID
+     * @param professorId professor ID
+     * @return updated registration, or null if the registration or
+     *         professor cannot be found
+     */
+    @Transactional
+    public CourseRegistration assignProfessor(
+        int studentId,
+        int courseId,
+        int professorId
+    ) {
+        CourseRegistration registration =
+            getCourseRegistration(
+                studentId,
+                courseId
+            );
+
+        Professor professor =
+            getProfessorById(professorId);
+
+        if (registration == null || professor == null) {
+            return null;
+        }
+
+        registration.setProfessor(professor);
+        em.flush();
+
+        return registration;
+    }
+
+    /**
+     * Assigns or updates the letter grade for a registration.
+     *
+     * @param studentId student ID
+     * @param courseId course ID
+     * @param letterGrade new letter grade
+     * @return updated registration, or null if not found
+     */
+    @Transactional
+    public CourseRegistration assignLetterGrade(
+        int studentId,
+        int courseId,
+        String letterGrade
+    ) {
+        CourseRegistration registration =
+            getCourseRegistration(
+                studentId,
+                courseId
+            );
+
+        if (registration != null) {
+            registration.setLetterGrade(
+                letterGrade
+            );
+
+            em.flush();
+        }
+
+        return registration;
+    }
+
+    /**
+     * Deletes a specific course registration.
+     *
+     * @param studentId student ID
+     * @param courseId course ID
+     * @return deleted registration, or null if not found
+     */
+    @Transactional
+    public CourseRegistration deleteCourseRegistration(
+        int studentId,
+        int courseId
+    ) {
+        CourseRegistration registration =
+            getCourseRegistration(
+                studentId,
+                courseId
+            );
+
+        if (registration != null) {
+            em.remove(registration);
+            em.flush();
+        }
+
+        return registration;
+    }
+    /**
+     * Retrieves all valid letter grades from the database.
+     *
+     * @return valid letter-grade values
+     */
+    @SuppressWarnings("unchecked")
+    public List<String> getAllLetterGrades() {
+        return em.createNativeQuery(
+                "SELECT grade FROM letter_grade"
+            )
+            .getResultList();
     }
 }
