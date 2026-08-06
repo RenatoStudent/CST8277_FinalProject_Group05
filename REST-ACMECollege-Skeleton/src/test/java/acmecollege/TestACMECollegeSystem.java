@@ -390,17 +390,17 @@ public class TestACMECollegeSystem {
     }
 
     /**
-     * Confirms a USER_ROLE account cannot list professors.
+     * Confirms a USER_ROLE account can also list professors (students need to browse professors too).
      */
     @Test
-    public void test14_get_all_professors_as_user_should_fail() {
+    public void test14_get_all_professors_as_user() {
         Response response = webTarget
             .register(userAuth)
             .path(PROFESSOR_RESOURCE_NAME)
             .request()
             .get();
 
-        assertThat(response.getStatus(), is(403));
+        assertThat(response.getStatus(), is(200));
     }
 
     /**
@@ -675,17 +675,18 @@ public class TestACMECollegeSystem {
     }
 
     /**
-     * Confirms a USER_ROLE account cannot list course registrations.
+     * Confirms a USER_ROLE account retrieves only their own course registrations
+     * (not blocked entirely — per the PDF's "USER (own only)" rule).
      */
     @Test
-    public void test25_get_all_course_registrations_as_user_should_fail() {
+    public void test25_get_own_course_registrations_as_user() {
         Response response = webTarget
             .register(userAuth)
             .path(COURSEREGISTRATION_RESOURCE_NAME)
             .request()
             .get();
 
-        assertThat(response.getStatus(), is(403));
+        assertThat(response.getStatus(), is(200));
     }
 
     /**
