@@ -11,6 +11,7 @@ import static com.algonquincollege.cst8277.utility.MyConstants.ADMIN_ROLE;
 import static com.algonquincollege.cst8277.utility.MyConstants.PROFESSOR_RESOURCE_NAME;
 import static com.algonquincollege.cst8277.utility.MyConstants.RESOURCE_PATH_ID_ELEMENT;
 import static com.algonquincollege.cst8277.utility.MyConstants.RESOURCE_PATH_ID_PATH;
+import static com.algonquincollege.cst8277.utility.MyConstants.USER_ROLE;
 
 import java.util.List;
 
@@ -54,7 +55,7 @@ public class ProfessorResource {
      * @return HTTP 200 with the professor list
      */
     @GET
-    @RolesAllowed({ADMIN_ROLE})
+    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
     public Response getProfessors() {
         LOG.debug("Retrieving all professors");
 
@@ -71,7 +72,7 @@ public class ProfessorResource {
      * @return HTTP 200 if found, otherwise HTTP 404
      */
     @GET
-    @RolesAllowed({ADMIN_ROLE})
+    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
     @Path(RESOURCE_PATH_ID_PATH)
     public Response getProfessorById(
         @PathParam(RESOURCE_PATH_ID_ELEMENT) int id

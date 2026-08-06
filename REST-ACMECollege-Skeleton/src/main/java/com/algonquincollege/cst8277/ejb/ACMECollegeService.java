@@ -568,6 +568,24 @@ public class ACMECollegeService implements Serializable {
     }
 
     /**
+     * Retrieves all course registrations belonging to a specific student.
+     *
+     * @param studentId student ID
+     * @return that student's course registrations
+     */
+    public List<CourseRegistration> getCourseRegistrationsByStudentId(
+        int studentId
+    ) {
+        return em.createQuery(
+                "SELECT cr FROM CourseRegistration cr "
+                    + "WHERE cr.student.id = :param1",
+                CourseRegistration.class
+            )
+            .setParameter(PARAM1, studentId)
+            .getResultList();
+    }
+
+    /**
      * Retrieves a specific registration using its student and course IDs.
      *
      * @param studentId student ID

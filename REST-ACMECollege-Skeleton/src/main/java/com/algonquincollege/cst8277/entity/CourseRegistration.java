@@ -73,7 +73,7 @@ public class CourseRegistration
      */
     @MapsId("studentId")
     @ManyToOne(
-        cascade = CascadeType.MERGE,
+        cascade = CascadeType.ALL,
         optional = false,
         fetch = FetchType.LAZY
     )

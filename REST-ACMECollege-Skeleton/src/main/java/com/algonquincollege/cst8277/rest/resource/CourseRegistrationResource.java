@@ -13,20 +13,27 @@ import static com.algonquincollege.cst8277.utility.MyConstants.COURSEREGISTRATIO
 import static com.algonquincollege.cst8277.utility.MyConstants.LETTERGRADE_RESOURCE_PATH;
 import static com.algonquincollege.cst8277.utility.MyConstants.STUDENT_COURSE_PATH;
 import static com.algonquincollege.cst8277.utility.MyConstants.STUDENT_ID_PATH_ELEMENT;
+import static com.algonquincollege.cst8277.utility.MyConstants.USER_ROLE;
 
+import java.security.Principal;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.soteria.WrappingCallerPrincipal;
 
 import com.algonquincollege.cst8277.ejb.ACMECollegeService;
 import com.algonquincollege.cst8277.entity.CourseRegistration;
 import com.algonquincollege.cst8277.entity.Professor;
+import com.algonquincollege.cst8277.entity.SecurityUser;
 
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.ejb.EJB;
+import jakarta.inject.Inject;
+import jakarta.security.enterprise.SecurityContext;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -50,23 +57,66 @@ public class CourseRegistrationResource {
     @EJB
     protected ACMECollegeService service;
 
+    @Inject
+    protected SecurityContext sc;
+
     /**
-     * Retrieves all course registrations.
+     * An ADMIN_ROLE user retrieves every registration.
+     * A USER_ROLE user retrieves only their own registrations.
      *
-     * @return HTTP 200 with all registrations
+     * @return HTTP 200 with the applicable registrations
      */
     @GET
-    @RolesAllowed({ADMIN_ROLE})
+    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
     public Response getAllCourseRegistrations() {
         LOG.debug(
             "Retrieving all course registrations"
         );
 
-        List<CourseRegistration> registrations =
-            service.getAllCourseRegistrations();
+        if (sc.isCallerInRole(ADMIN_ROLE)) {
+            List<CourseRegistration> registrations =
+                service.getAllCourseRegistrations();
+
+            return Response
+                .ok(registrations)
+                .build();
+        }
+
+        Principal callerPrincipal = sc.getCallerPrincipal();
+
+        if (!(callerPrincipal instanceof WrappingCallerPrincipal)) {
+            throw new ForbiddenException(
+                "Unable to resolve the authenticated SecurityUser"
+            );
+        }
+
+        WrappingCallerPrincipal wrappingPrincipal =
+            (WrappingCallerPrincipal) callerPrincipal;
+
+        Object wrappedPrincipal = wrappingPrincipal.getWrapped();
+
+        if (!(wrappedPrincipal instanceof SecurityUser)) {
+            throw new ForbiddenException(
+                "Authenticated principal is not a SecurityUser"
+            );
+        }
+
+        SecurityUser securityUser =
+            (SecurityUser) wrappedPrincipal;
+
+        if (securityUser.getStudent() == null) {
+            throw new ForbiddenException(
+                "User trying to access course registrations without a linked student"
+            );
+        }
+
+        int studentId = securityUser.getStudent().getId();
+
+        List<CourseRegistration> ownRegistrations =
+            service.getCourseRegistrationsByStudentId(studentId);
 
         return Response
-            .ok(registrations)
+            .ok(ownRegistrations)
             .build();
     }
 
@@ -80,7 +130,7 @@ public class CourseRegistrationResource {
      */
     @GET
     @Path(LETTERGRADE_RESOURCE_PATH)
-    @RolesAllowed({ADMIN_ROLE})
+    @RolesAllowed({ADMIN_ROLE, USER_ROLE})
     public Response getAllLetterGrades() {
         LOG.debug(
             "Retrieving all valid letter grades"
