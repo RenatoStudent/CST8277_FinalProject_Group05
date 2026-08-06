@@ -60,6 +60,9 @@ public class MainController implements Serializable, MyConstants {
     @Inject
     protected ProfessorController professorController;
 
+    @Inject
+    protected StudentClubController studentClubController;
+
     protected String optionChosen = NONE;
 
     protected List<String> options = Stream.of(
@@ -113,6 +116,10 @@ public class MainController implements Serializable, MyConstants {
 
             case PROFESSOR_MANAGEMENT:
                 professorController.loadProfessors();
+                break;
+
+            case STUDENT_CLUB_MANAGEMENT:
+                studentClubController.loadStudentClubs();
                 break;
 
             default:

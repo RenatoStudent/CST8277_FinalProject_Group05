@@ -951,6 +951,262 @@
 
         </h:panelGroup>
 
+        <!-- panel group for student club management -->
+        <h:panelGroup
+          rendered="#{(externalContext.userPrincipal ne null)
+            and (mainController.optionChosen == 'Student Club Management')}">
+
+          <h:panelGroup rendered="#{request.isUserInRole('ADMIN_ROLE')}">
+            <h:form id="addStudentClub">
+
+              <h:commandLink action="#{studentClubController.toggleAdding()}">
+                <i class="fa fa-plus-circle" />
+                &#xa0;
+                <h:outputText value="#{uiconsts['addStudentClubTitle']}" />
+              </h:commandLink>
+
+              <h:panelGroup rendered="#{studentClubController.adding}">
+                <h:panelGrid columns="2" cellpadding="2" cellspacing="1">
+
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="studentClubName-addon">
+                        <i class="fa fa-users fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:inputText
+                      id="new_studentClubName"
+                      styleClass="form-control placeholder-darkgray"
+                      value="#{newStudentClub.name}"
+                      a:placeholder="#{uiconsts['columnLabel_Name']}"
+                      validatorMessage="#{uiconsts['enter_valid_studentclub_name']}">
+
+                      <f:validateLength minimum="1" maximum="100" />
+                    </h:inputText>
+                  </h:panelGroup>
+
+                  <h:message for="new_studentClubName" style="color:red" />
+
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="studentClubDesc-addon">
+                        <i class="fa fa-align-left fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:inputText
+                      id="new_studentClubDesc"
+                      styleClass="form-control placeholder-darkgray"
+                      value="#{newStudentClub.desc}"
+                      a:placeholder="#{uiconsts['columnLabel_Desc']}"
+                      validatorMessage="#{uiconsts['enter_valid_studentclub_desc']}">
+
+                      <f:validateLength minimum="1" maximum="100" />
+                    </h:inputText>
+                  </h:panelGroup>
+
+                  <h:message for="new_studentClubDesc" style="color:red" />
+
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="studentClubType-addon">
+                        <i class="fa fa-graduation-cap fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:selectOneMenu
+                      id="new_studentClubType"
+                      styleClass="form-control"
+                      value="#{newStudentClub.academic}">
+
+                      <f:selectItem
+                        itemLabel="#{uiconsts['academicYes']}"
+                        itemValue="true" />
+
+                      <f:selectItem
+                        itemLabel="#{uiconsts['academicNo']}"
+                        itemValue="false" />
+                    </h:selectOneMenu>
+                  </h:panelGroup>
+
+                  <h:message for="new_studentClubType" style="color:red" />
+
+                </h:panelGrid>
+
+                <h:panelGrid columns="2" cellpadding="10">
+
+                  <h:commandLink action="#{newStudentClub.addStudentClub()}">
+                    <i class="fa fa-plus-circle fa-fw" />
+                    &#xa0;
+                    <h:outputText
+                      class="text-success"
+                      value="#{uiconsts['submitLabel']}" />
+                  </h:commandLink>
+
+                  <h:commandLink
+                    action="#{studentClubController.toggleAdding()}"
+                    immediate="true">
+
+                    <i class="fa fa-undo fa-fw" />
+                    &#xa0;
+                    <h:outputText
+                      class="text-primary"
+                      value="#{uiconsts['cancelLabel']}" />
+                  </h:commandLink>
+
+                </h:panelGrid>
+              </h:panelGroup>
+            </h:form>
+
+            <br />
+          </h:panelGroup>
+
+          <h:form id="studentClubList">
+            <h:dataTable
+              value="#{studentClubController.studentClubs}"
+              var="studentClub"
+              styleClass="table table-striped table-bordered table-hover"
+              headerClass="thead-light"
+              captionClass="text-center">
+
+              <f:facet name="caption">
+                #{uiconsts['studentClubListCaption']}
+              </f:facet>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Id']}
+                </f:facet>
+
+                <h:outputText value="#{studentClub.id}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Name']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{studentClub.name}"
+                  rendered="#{not studentClub.editable}" />
+
+                <h:inputText
+                  id="studentClubName_editable"
+                  value="#{studentClub.name}"
+                  rendered="#{studentClub.editable}"
+                  validatorMessage="#{uiconsts['enter_valid_studentclub_name']}">
+
+                  <f:validateLength minimum="1" maximum="100" />
+                </h:inputText>
+
+                <h:message
+                  for="studentClubName_editable"
+                  style="color:red" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Desc']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{studentClub.desc}"
+                  rendered="#{not studentClub.editable}" />
+
+                <h:inputText
+                  id="studentClubDesc_editable"
+                  value="#{studentClub.desc}"
+                  rendered="#{studentClub.editable}"
+                  validatorMessage="#{uiconsts['enter_valid_studentclub_desc']}">
+
+                  <f:validateLength minimum="1" maximum="100" />
+                </h:inputText>
+
+                <h:message
+                  for="studentClubDesc_editable"
+                  style="color:red" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Academic']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{studentClub.academic
+                    ? uiconsts['academicYes']
+                    : uiconsts['academicNo']}" />
+              </h:column>
+
+              <h:column rendered="#{request.isUserInRole('ADMIN_ROLE')}">
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Action']}
+                </f:facet>
+
+                <h:commandLink
+                  action="#{studentClubController.editStudentClub(studentClub)}"
+                  rendered="#{not studentClub.editable}">
+
+                  <i class="fa fa-edit fa-fw" />
+                  &#xa0;
+                  <h:outputText value="#{uiconsts['editLabel']}" />
+                </h:commandLink>
+
+                &#xa0;
+
+                <h:commandLink
+                  action="#{studentClubController.updateStudentClub(studentClub)}"
+                  rendered="#{studentClub.editable}">
+
+                  <i class="fa fa-save fa-fw" />
+                  &#xa0;
+                  <h:outputText
+                    class="text-success"
+                    value="#{uiconsts['saveLabel']}" />
+                </h:commandLink>
+
+                &#xa0;
+
+                <h:commandLink
+                  action="#{studentClubController.cancelUpdate(studentClub)}"
+                  immediate="true"
+                  rendered="#{studentClub.editable}">
+
+                  <i class="fa fa-undo fa-fw" />
+                  &#xa0;
+                  <h:outputText value="#{uiconsts['cancelLabel']}" />
+                </h:commandLink>
+
+                &#xa0;
+
+                <h:commandLink
+                  action="#{studentClubController.deleteStudentClub(studentClub.id)}"
+                  rendered="#{not studentClub.editable}"
+                  onclick="return confirm('#{uiconsts['deleteStudentClubConfirmation']}');">
+
+                  <i class="fa fa-trash fa-fw" style="color:red" />
+                  &#xa0;
+                  <h:outputText value="#{uiconsts['deleteLabel']}" />
+                </h:commandLink>
+
+              </h:column>
+            </h:dataTable>
+
+            <h:panelGroup class="refreshFooter">
+              <h:commandButton
+                value="#{uiconsts['refreshButtonLabel']}"
+                action="#{studentClubController.refreshStudentClubForm()}" />
+            </h:panelGroup>
+          </h:form>
+
+          <h:messages
+            globalOnly="true"
+            layout="table"
+            styleClass="alert alert-danger" />
+
+        </h:panelGroup>
+
       </div>
     </div>
   </h:body>
