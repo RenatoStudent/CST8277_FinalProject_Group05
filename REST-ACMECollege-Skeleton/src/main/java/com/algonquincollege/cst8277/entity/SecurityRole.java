@@ -3,7 +3,7 @@
  *
  * @author Teddy Yap
  * @author Shariar (Shawn) Emami
- * 
+ *
  */
 package com.algonquincollege.cst8277.entity;
 
@@ -24,41 +24,45 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 
-@SuppressWarnings("unused")
-
 /**
- * Role class used for (JSR-375) Jakarta EE Security authorization/authentication
+ * Role class used for Jakarta EE Security authorization and authentication.
  */
-//TODO SR01 - Make this into JPA entity and add all necessary annotations inside the class.
 @Entity(name = "SecurityRole")
 @Table(name = "security_role")
 @Access(AccessType.FIELD)
-@NamedQuery(name = SecurityRole.SECURITY_ROLE_BY_NAME, query = "SELECT sr FROM SecurityRole sr WHERE sr.roleName = :param1")
+@NamedQuery(
+    name = SecurityRole.SECURITY_ROLE_BY_NAME,
+    query = "SELECT sr FROM SecurityRole sr "
+        + "WHERE sr.roleName = :param1"
+)
 public class SecurityRole implements Serializable {
-    /** Explicit set serialVersionUID */
-    private static final long serialVersionUID = 1L;
-    
-	public static final String SECURITY_ROLE_BY_NAME = "SecurityRole.RoleByName";
 
-    //TODO SR02 - Add annotations.
+    private static final long serialVersionUID = 1L;
+
+    public static final String SECURITY_ROLE_BY_NAME =
+        "SecurityRole.RoleByName";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "role_id")
     protected int id;
-    
-    //TODO SR03 - Add annotations.
+
     @Basic(optional = false)
-    @Column(name = "name", nullable = false, length = 45)
+    @Column(
+        name = "name",
+        nullable = false,
+        length = 45
+    )
     protected String roleName;
-    
-    //TODO SR04 - Add annotations.
+
     @ManyToMany(mappedBy = "roles")
-    protected Set<SecurityUser> users = new HashSet<SecurityUser>();
+    protected Set<SecurityUser> users =
+        new HashSet<>();
 
     public SecurityRole() {
         super();
     }
-    
+
     public int getId() {
         return id;
     }
@@ -89,12 +93,7 @@ public class SecurityRole implements Serializable {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = super.hashCode();
-        // Only include member variables that really contribute to an object's identity
-        // i.e. if variables like version/updated/name/etc. change throughout an object's lifecycle,
-        // they shouldn't be part of the hashCode calculation
-        return prime * result + Objects.hash(getId());
+        return Objects.hash(getId());
     }
 
     @Override
@@ -102,24 +101,36 @@ public class SecurityRole implements Serializable {
         if (this == obj) {
             return true;
         }
+
         if (obj == null) {
             return false;
         }
+
         if (obj instanceof SecurityRole otherSecurityRole) {
-            // See comment (above) in hashCode():  Compare using only member variables that are
-            // truly part of an object's identity
-            return Objects.equals(this.getId(), otherSecurityRole.getId());
+            return Objects.equals(
+                getId(),
+                otherSecurityRole.getId()
+            );
         }
+
         return false;
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("SecurityRole [id = ").append(id).append(", ");
-        if (roleName != null)
-            builder.append("roleName = ").append(roleName);
+
+        builder.append("SecurityRole [id = ")
+            .append(id)
+            .append(", ");
+
+        if (roleName != null) {
+            builder.append("roleName = ")
+                .append(roleName);
+        }
+
         builder.append("]");
+
         return builder.toString();
     }
 }

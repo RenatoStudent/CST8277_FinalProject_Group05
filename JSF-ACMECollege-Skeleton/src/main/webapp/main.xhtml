@@ -357,11 +357,600 @@
         </h:panelGroup>
 
         <!-- add your different panel groups here -->
+        <!-- add your different panel groups here -->
 
+        <!-- panel group for course management -->
+        <h:panelGroup
+          rendered="#{(externalContext.userPrincipal ne null)
+            and (mainController.optionChosen == 'Course Management')}">
 
-        
+          <h:panelGroup rendered="#{request.isUserInRole('ADMIN_ROLE')}">
+            <h:form id="addCourse">
 
-        
+              <h:commandLink action="#{courseController.toggleAdding()}">
+                <i class="fa fa-plus-circle" />
+                &#xa0;
+                <h:outputText value="#{uiconsts['addCourseTitle']}" />
+              </h:commandLink>
+
+              <h:panelGroup rendered="#{courseController.adding}">
+                <h:panelGrid columns="2" cellpadding="2" cellspacing="1">
+
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="courseCode-addon">
+                        <i class="fa fa-code fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:inputText
+                      id="new_courseCode"
+                      styleClass="form-control placeholder-darkgray"
+                      value="#{newCourse.courseCode}"
+                      a:placeholder="#{uiconsts['columnLabel_CourseCode']}"
+                      validatorMessage="#{uiconsts['enter_valid_course_code']}">
+
+                      <f:validateLength minimum="1" maximum="7" />
+                    </h:inputText>
+                  </h:panelGroup>
+
+                  <h:message for="new_courseCode" style="color:red" />
+
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="courseTitle-addon">
+                        <i class="fa fa-book fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:inputText
+                      id="new_courseTitle"
+                      styleClass="form-control placeholder-darkgray"
+                      value="#{newCourse.courseTitle}"
+                      a:placeholder="#{uiconsts['columnLabel_CourseTitle']}"
+                      validatorMessage="#{uiconsts['enter_valid_course_title']}">
+
+                      <f:validateLength minimum="1" maximum="100" />
+                    </h:inputText>
+                  </h:panelGroup>
+
+                  <h:message for="new_courseTitle" style="color:red" />
+
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="creditUnits-addon">
+                        <i class="fa fa-calculator fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:inputText
+                      id="new_creditUnits"
+                      styleClass="form-control placeholder-darkgray"
+                      value="#{newCourse.creditUnits}"
+                      a:placeholder="#{uiconsts['columnLabel_CreditUnits']}"
+                      validatorMessage="#{uiconsts['enter_valid_credit_units']}">
+
+                      <f:validateLongRange minimum="1" maximum="10" />
+                    </h:inputText>
+                  </h:panelGroup>
+
+                  <h:message for="new_creditUnits" style="color:red" />
+
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="online-addon">
+                        <i class="fa fa-laptop fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:selectOneMenu
+                      id="new_online"
+                      styleClass="form-control"
+                      value="#{newCourse.online}">
+
+                      <f:selectItem
+                        itemLabel="#{uiconsts['onlineNo']}"
+                        itemValue="0" />
+
+                      <f:selectItem
+                        itemLabel="#{uiconsts['onlineYes']}"
+                        itemValue="1" />
+                    </h:selectOneMenu>
+                  </h:panelGroup>
+
+                  <h:message for="new_online" style="color:red" />
+
+                </h:panelGrid>
+
+                <h:panelGrid columns="2" cellpadding="10">
+
+                  <h:commandLink action="#{newCourse.addCourse()}">
+                    <i class="fa fa-plus-circle fa-fw" />
+                    &#xa0;
+                    <h:outputText
+                      class="text-success"
+                      value="#{uiconsts['submitLabel']}" />
+                  </h:commandLink>
+
+                  <h:commandLink
+                    action="#{courseController.toggleAdding()}"
+                    immediate="true">
+
+                    <i class="fa fa-undo fa-fw" />
+                    &#xa0;
+                    <h:outputText
+                      class="text-primary"
+                      value="#{uiconsts['cancelLabel']}" />
+                  </h:commandLink>
+
+                </h:panelGrid>
+              </h:panelGroup>
+            </h:form>
+
+            <br />
+          </h:panelGroup>
+
+          <h:form id="courseList">
+            <h:dataTable
+              value="#{courseController.courses}"
+              var="course"
+              styleClass="table table-striped table-bordered table-hover"
+              headerClass="thead-light"
+              captionClass="text-center">
+
+              <f:facet name="caption">
+                #{uiconsts['courseListCaption']}
+              </f:facet>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Id']}
+                </f:facet>
+
+                <h:outputText value="#{course.id}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_CourseCode']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{course.courseCode}"
+                  rendered="#{not course.editable}" />
+
+                <h:inputText
+                  id="courseCode_editable"
+                  value="#{course.courseCode}"
+                  rendered="#{course.editable}"
+                  validatorMessage="#{uiconsts['enter_valid_course_code']}">
+
+                  <f:validateLength minimum="1" maximum="7" />
+                </h:inputText>
+
+                <h:message
+                  for="courseCode_editable"
+                  style="color:red" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_CourseTitle']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{course.courseTitle}"
+                  rendered="#{not course.editable}" />
+
+                <h:inputText
+                  id="courseTitle_editable"
+                  value="#{course.courseTitle}"
+                  rendered="#{course.editable}"
+                  validatorMessage="#{uiconsts['enter_valid_course_title']}">
+
+                  <f:validateLength minimum="1" maximum="100" />
+                </h:inputText>
+
+                <h:message
+                  for="courseTitle_editable"
+                  style="color:red" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_CreditUnits']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{course.creditUnits}"
+                  rendered="#{not course.editable}" />
+
+                <h:inputText
+                  id="creditUnits_editable"
+                  value="#{course.creditUnits}"
+                  rendered="#{course.editable}"
+                  validatorMessage="#{uiconsts['enter_valid_credit_units']}">
+
+                  <f:validateLongRange minimum="1" maximum="10" />
+                </h:inputText>
+
+                <h:message
+                  for="creditUnits_editable"
+                  style="color:red" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Online']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{course.online == 1
+                    ? uiconsts['onlineYes']
+                    : uiconsts['onlineNo']}"
+                  rendered="#{not course.editable}" />
+
+                <h:selectOneMenu
+                  id="online_editable"
+                  value="#{course.online}"
+                  rendered="#{course.editable}">
+
+                  <f:selectItem
+                    itemLabel="#{uiconsts['onlineNo']}"
+                    itemValue="0" />
+
+                  <f:selectItem
+                    itemLabel="#{uiconsts['onlineYes']}"
+                    itemValue="1" />
+                </h:selectOneMenu>
+              </h:column>
+
+              <h:column rendered="#{request.isUserInRole('ADMIN_ROLE')}">
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Action']}
+                </f:facet>
+
+                <h:commandLink
+                  action="#{courseController.editCourse(course)}"
+                  rendered="#{not course.editable}">
+
+                  <i class="fa fa-edit fa-fw" />
+                  &#xa0;
+                  <h:outputText value="#{uiconsts['editLabel']}" />
+                </h:commandLink>
+
+                &#xa0;
+
+                <h:commandLink
+                  action="#{courseController.updateCourse(course)}"
+                  rendered="#{course.editable}">
+
+                  <i class="fa fa-save fa-fw" />
+                  &#xa0;
+                  <h:outputText
+                    class="text-success"
+                    value="#{uiconsts['saveLabel']}" />
+                </h:commandLink>
+
+                &#xa0;
+
+                <h:commandLink
+                  action="#{courseController.cancelUpdate(course)}"
+                  immediate="true"
+                  rendered="#{course.editable}">
+
+                  <i class="fa fa-undo fa-fw" />
+                  &#xa0;
+                  <h:outputText value="#{uiconsts['cancelLabel']}" />
+                </h:commandLink>
+
+                &#xa0;
+
+                <h:commandLink
+                  action="#{courseController.deleteCourse(course.id)}"
+                  rendered="#{not course.editable}"
+                  onclick="return confirm('#{uiconsts['deleteCourseConfirmation']}');">
+
+                  <i class="fa fa-trash fa-fw" style="color:red" />
+                  &#xa0;
+                  <h:outputText value="#{uiconsts['deleteLabel']}" />
+                </h:commandLink>
+
+              </h:column>
+            </h:dataTable>
+
+            <h:panelGroup class="refreshFooter">
+              <h:commandButton
+                value="#{uiconsts['refreshButtonLabel']}"
+                action="#{courseController.refreshCourseForm()}" />
+            </h:panelGroup>
+          </h:form>
+
+          <h:messages
+            globalOnly="true"
+            layout="table"
+            styleClass="alert alert-danger" />
+
+        </h:panelGroup>
+
+        <!-- panel group for professor management -->
+        <h:panelGroup
+          rendered="#{(externalContext.userPrincipal ne null)
+            and (mainController.optionChosen == 'Professor Management')}">
+
+          <h:panelGroup rendered="#{request.isUserInRole('ADMIN_ROLE')}">
+            <h:form id="addProfessor">
+
+              <h:commandLink action="#{professorController.toggleAdding()}">
+                <i class="fa fa-user-plus" />
+                &#xa0;
+                <h:outputText value="#{uiconsts['addProfessorTitle']}" />
+              </h:commandLink>
+
+              <h:panelGroup rendered="#{professorController.adding}">
+                <h:panelGrid columns="2" cellpadding="2" cellspacing="1">
+
+                  <!-- First name -->
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="professorFirstName-addon">
+                        <i class="fa fa-edit fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:inputText
+                      id="new_professorFirstName"
+                      styleClass="form-control placeholder-darkgray"
+                      value="#{newProfessor.firstName}"
+                      a:placeholder="#{uiconsts['columnLabel_FirstName']}"
+                      validatorMessage="#{uiconsts['enter_valid_professor_name']}">
+
+                      <f:validateLength minimum="1" maximum="50" />
+                    </h:inputText>
+                  </h:panelGroup>
+
+                  <h:message
+                    for="new_professorFirstName"
+                    style="color:red" />
+
+                  <!-- Last name -->
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="professorLastName-addon">
+                        <i class="fa fa-edit fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:inputText
+                      id="new_professorLastName"
+                      styleClass="form-control placeholder-darkgray"
+                      value="#{newProfessor.lastName}"
+                      a:placeholder="#{uiconsts['columnLabel_LastName']}"
+                      validatorMessage="#{uiconsts['enter_valid_professor_name']}">
+
+                      <f:validateLength minimum="1" maximum="50" />
+                    </h:inputText>
+                  </h:panelGroup>
+
+                  <h:message
+                    for="new_professorLastName"
+                    style="color:red" />
+
+                  <!-- Degree -->
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="professorDegree-addon">
+                        <i class="fa fa-graduation-cap fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:inputText
+                      id="new_professorDegree"
+                      styleClass="form-control placeholder-darkgray"
+                      value="#{newProfessor.degree}"
+                      a:placeholder="#{uiconsts['columnLabel_Degree']}"
+                      validatorMessage="#{uiconsts['enter_valid_degree']}">
+
+                      <f:validateLength minimum="1" maximum="45" />
+                    </h:inputText>
+                  </h:panelGroup>
+
+                  <h:message
+                    for="new_professorDegree"
+                    style="color:red" />
+
+                </h:panelGrid>
+
+                <h:panelGrid columns="2" cellpadding="10">
+
+                  <h:commandLink action="#{newProfessor.addProfessor()}">
+                    <i class="fa fa-user-plus fa-fw" />
+                    &#xa0;
+                    <h:outputText
+                      class="text-success"
+                      value="#{uiconsts['submitLabel']}" />
+                  </h:commandLink>
+
+                  <h:commandLink
+                    action="#{professorController.toggleAdding()}"
+                    immediate="true">
+
+                    <i class="fa fa-undo fa-fw" />
+                    &#xa0;
+                    <h:outputText
+                      class="text-primary"
+                      value="#{uiconsts['cancelLabel']}" />
+                  </h:commandLink>
+
+                </h:panelGrid>
+              </h:panelGroup>
+            </h:form>
+
+            <br />
+          </h:panelGroup>
+
+          <h:form id="professorList">
+            <h:dataTable
+              value="#{professorController.professors}"
+              var="professor"
+              styleClass="table table-striped table-bordered table-hover"
+              headerClass="thead-light"
+              captionClass="text-center">
+
+              <f:facet name="caption">
+                #{uiconsts['professorListCaption']}
+              </f:facet>
+
+              <!-- ID -->
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Id']}
+                </f:facet>
+
+                <h:outputText value="#{professor.id}" />
+              </h:column>
+
+              <!-- First name -->
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_FirstName']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{professor.firstName}"
+                  rendered="#{not professor.editable}" />
+
+                <h:inputText
+                  id="professorFirstName_editable"
+                  value="#{professor.firstName}"
+                  rendered="#{professor.editable}"
+                  validatorMessage="#{uiconsts['enter_valid_professor_name']}">
+
+                  <f:validateLength minimum="1" maximum="50" />
+                </h:inputText>
+
+                <h:message
+                  for="professorFirstName_editable"
+                  style="color:red" />
+              </h:column>
+
+              <!-- Last name -->
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_LastName']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{professor.lastName}"
+                  rendered="#{not professor.editable}" />
+
+                <h:inputText
+                  id="professorLastName_editable"
+                  value="#{professor.lastName}"
+                  rendered="#{professor.editable}"
+                  validatorMessage="#{uiconsts['enter_valid_professor_name']}">
+
+                  <f:validateLength minimum="1" maximum="50" />
+                </h:inputText>
+
+                <h:message
+                  for="professorLastName_editable"
+                  style="color:red" />
+              </h:column>
+
+              <!-- Degree -->
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Degree']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{professor.degree}"
+                  rendered="#{not professor.editable}" />
+
+                <h:inputText
+                  id="professorDegree_editable"
+                  value="#{professor.degree}"
+                  rendered="#{professor.editable}"
+                  validatorMessage="#{uiconsts['enter_valid_degree']}">
+
+                  <f:validateLength minimum="1" maximum="45" />
+                </h:inputText>
+
+                <h:message
+                  for="professorDegree_editable"
+                  style="color:red" />
+              </h:column>
+
+              <!-- Actions -->
+              <h:column rendered="#{request.isUserInRole('ADMIN_ROLE')}">
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Action']}
+                </f:facet>
+
+                <h:commandLink
+                  action="#{professorController.editProfessor(professor)}"
+                  rendered="#{not professor.editable}">
+
+                  <i class="fa fa-edit fa-fw" />
+                  &#xa0;
+                  <h:outputText value="#{uiconsts['editLabel']}" />
+                </h:commandLink>
+
+                &#xa0;
+
+                <h:commandLink
+                  action="#{professorController.updateProfessor(professor)}"
+                  rendered="#{professor.editable}">
+
+                  <i class="fa fa-save fa-fw" />
+                  &#xa0;
+                  <h:outputText
+                    class="text-success"
+                    value="#{uiconsts['saveLabel']}" />
+                </h:commandLink>
+
+                &#xa0;
+
+                <h:commandLink
+                  action="#{professorController.cancelUpdate(professor)}"
+                  immediate="true"
+                  rendered="#{professor.editable}">
+
+                  <i class="fa fa-undo fa-fw" />
+                  &#xa0;
+                  <h:outputText value="#{uiconsts['cancelLabel']}" />
+                </h:commandLink>
+
+                &#xa0;
+
+                <h:commandLink
+                  action="#{professorController.deleteProfessor(professor.id)}"
+                  rendered="#{not professor.editable}"
+                  onclick="return confirm('#{uiconsts['deleteProfessorConfirmation']}');">
+
+                  <i class="fa fa-trash fa-fw" style="color:red" />
+                  &#xa0;
+                  <h:outputText value="#{uiconsts['deleteLabel']}" />
+                </h:commandLink>
+
+              </h:column>
+            </h:dataTable>
+
+            <h:panelGroup class="refreshFooter">
+              <h:commandButton
+                value="#{uiconsts['refreshButtonLabel']}"
+                action="#{professorController.refreshProfessorForm()}" />
+            </h:panelGroup>
+          </h:form>
+
+          <h:messages
+            globalOnly="true"
+            layout="table"
+            styleClass="alert alert-danger" />
+
+        </h:panelGroup>
+
       </div>
     </div>
   </h:body>
