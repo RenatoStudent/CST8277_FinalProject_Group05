@@ -2,7 +2,8 @@
  * File: NewProfessorView.java
  * Course Materials CST 8277
  *
- * @author Teddy Yap
+ * @author Scott Van Dijk
+ * @author Renato Perocchio
  *
  */
 package com.algonquincollege.cst8277.jsf;

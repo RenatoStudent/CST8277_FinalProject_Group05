@@ -1,8 +1,8 @@
 /********************************************************************************************************
  * File:  ProfessorResource.java Course Materials CST 8277
  *
- * @author Teddy Yap
- * @author Shariar (Shawn) Emami
+ * @author Scott Van Dijk
+ * @author Renato Perocchio
  *
  */
 package com.algonquincollege.cst8277.rest.resource;

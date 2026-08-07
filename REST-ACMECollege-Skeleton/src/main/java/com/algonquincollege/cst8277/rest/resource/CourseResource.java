@@ -2,7 +2,8 @@
  * File: CourseResource.java
  * Course Materials CST 8277
  *
- * @author Scott Vandijk
+ * @author Scott Van Dijk
+ * @author Renato Perocchio
  */
 package com.algonquincollege.cst8277.rest.resource;
 
