@@ -74,7 +74,7 @@ public class CourseRegistration
      */
     @MapsId("studentId")
     @ManyToOne(
-        cascade = CascadeType.ALL,
+        cascade = {CascadeType.PERSIST, CascadeType.MERGE},
         optional = false,
         fetch = FetchType.LAZY
     )

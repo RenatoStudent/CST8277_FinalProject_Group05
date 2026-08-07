@@ -10,6 +10,7 @@ package com.algonquincollege.cst8277.jsf;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -96,12 +97,35 @@ public class StudentController implements Serializable, MyConstants {
     }
     
     public void loadStudents() {
-    	Response response = webTarget
+        Response response = null;
+
+        try {
+            response = webTarget
                 .register(auth)
                 .path(STUDENT_RESOURCE_NAME)
                 .request()
                 .get();
-        listOfStudents = response.readEntity(new GenericType<List<Student>>(){});
+
+            if (response.getStatus()
+                == Response.Status.OK.getStatusCode()) {
+
+                listOfStudents = response.readEntity(
+                    new GenericType<List<Student>>() {
+                    }
+                );
+            }
+            else {
+                listOfStudents = new ArrayList<>();
+            }
+        }
+        catch (Exception e) {
+            listOfStudents = new ArrayList<>();
+        }
+        finally {
+            if (response != null) {
+                response.close();
+            }
+        }
     }
 
     public boolean isAdding() {
