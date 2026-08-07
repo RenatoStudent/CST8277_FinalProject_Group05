@@ -577,7 +577,10 @@ public class ACMECollegeService implements Serializable {
         int studentId
     ) {
         return em.createQuery(
-                "SELECT cr FROM CourseRegistration cr "
+                "SELECT DISTINCT cr FROM CourseRegistration cr "
+                    + "JOIN FETCH cr.student "
+                    + "JOIN FETCH cr.course "
+                    + "LEFT JOIN FETCH cr.professor "
                     + "WHERE cr.student.id = :param1",
                 CourseRegistration.class
             )

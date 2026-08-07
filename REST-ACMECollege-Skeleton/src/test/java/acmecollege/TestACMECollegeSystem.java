@@ -695,7 +695,7 @@ public class TestACMECollegeSystem {
     @Test
     public void test26_create_course_registration_as_admin() {
         Student student = new Student();
-        student.setId(1);
+        student.setId(2);
 
         Course course = new Course();
         course.setId(1);
@@ -723,7 +723,7 @@ public class TestACMECollegeSystem {
         assertThat(
             persistedRegistration.getId()
                 .getStudentId(),
-            is(1)
+            is(2)
         );
 
         assertThat(
@@ -752,7 +752,7 @@ public class TestACMECollegeSystem {
             .register(adminAuth)
             .path(
                 COURSEREGISTRATION_RESOURCE_NAME
-                    + "/student/1/course/1"
+                    + "/student/2/course/1"
             )
             .request()
             .get();
@@ -764,7 +764,7 @@ public class TestACMECollegeSystem {
 
         assertThat(
             registration.getId().getStudentId(),
-            is(1)
+            is(2)
         );
 
         assertThat(
@@ -785,7 +785,7 @@ public class TestACMECollegeSystem {
             .register(adminAuth)
             .path(
                 COURSEREGISTRATION_RESOURCE_NAME
-                    + "/student/1/course/1/professor"
+                    + "/student/2/course/1/professor"
             )
             .request()
             .put(Entity.json(professor));
@@ -815,7 +815,7 @@ public class TestACMECollegeSystem {
             .register(adminAuth)
             .path(
                 COURSEREGISTRATION_RESOURCE_NAME
-                    + "/student/1/course/1/grade"
+                    + "/student/2/course/1/grade"
             )
             .request()
             .put(
@@ -851,7 +851,7 @@ public class TestACMECollegeSystem {
             .register(adminAuth)
             .path(
                 COURSEREGISTRATION_RESOURCE_NAME
-                    + "/student/1/course/1"
+                    + "/student/2/course/1"
             )
             .request()
             .put(Entity.json(updates));
@@ -883,7 +883,7 @@ public class TestACMECollegeSystem {
             .register(adminAuth)
             .path(
                 COURSEREGISTRATION_RESOURCE_NAME
-                    + "/student/1/course/1"
+                    + "/student/2/course/1"
             )
             .request()
             .delete();
@@ -897,7 +897,7 @@ public class TestACMECollegeSystem {
             .register(adminAuth)
             .path(
                 COURSEREGISTRATION_RESOURCE_NAME
-                    + "/student/1/course/1"
+                    + "/student/2/course/1"
             )
             .request()
             .get();
