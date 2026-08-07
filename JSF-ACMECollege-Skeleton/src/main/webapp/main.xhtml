@@ -1207,6 +1207,222 @@
 
         </h:panelGroup>
 
+        <!-- panel group for course registration -->
+        <h:panelGroup
+          rendered="#{(externalContext.userPrincipal ne null)
+            and (mainController.optionChosen == 'Course Registration')}">
+
+          <h:panelGroup rendered="#{request.isUserInRole('ADMIN_ROLE')}">
+            <h:form id="addCourseRegistration">
+
+              <h:commandLink action="#{courseRegistrationController.toggleAdding()}">
+                <i class="fa fa-plus-circle" />
+                &#xa0;
+                <h:outputText value="#{uiconsts['addCourseRegistrationTitle']}" />
+              </h:commandLink>
+
+              <h:panelGroup rendered="#{courseRegistrationController.adding}">
+                <h:panelGrid columns="2" cellpadding="2" cellspacing="1">
+
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="courseRegistrationStudent-addon">
+                        <i class="fa fa-user fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:selectOneMenu
+                      id="new_courseRegistrationStudent"
+                      styleClass="form-control"
+                      value="#{newCourseRegistration.studentId}">
+
+                      <f:selectItems
+                        value="#{studentController.students}"
+                        var="student"
+                        itemLabel="#{student.firstName} #{student.lastName}"
+                        itemValue="#{student.id}" />
+                    </h:selectOneMenu>
+                  </h:panelGroup>
+
+                  <h:message for="new_courseRegistrationStudent" style="color:red" />
+
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="courseRegistrationCourse-addon">
+                        <i class="fa fa-book fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:selectOneMenu
+                      id="new_courseRegistrationCourse"
+                      styleClass="form-control"
+                      value="#{newCourseRegistration.courseId}">
+
+                      <f:selectItems
+                        value="#{courseController.courses}"
+                        var="course"
+                        itemLabel="#{course.courseCode} - #{course.courseTitle}"
+                        itemValue="#{course.id}" />
+                    </h:selectOneMenu>
+                  </h:panelGroup>
+
+                  <h:message for="new_courseRegistrationCourse" style="color:red" />
+
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="courseRegistrationYear-addon">
+                        <i class="fa fa-calendar fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:inputText
+                      id="new_courseRegistrationYear"
+                      styleClass="form-control placeholder-darkgray"
+                      value="#{newCourseRegistration.year}"
+                      a:placeholder="#{uiconsts['columnLabel_Year']}"
+                      validatorMessage="#{uiconsts['enter_valid_year']}">
+
+                      <f:validateLongRange minimum="2000" maximum="2100" />
+                    </h:inputText>
+                  </h:panelGroup>
+
+                  <h:message for="new_courseRegistrationYear" style="color:red" />
+
+                  <h:panelGroup class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="courseRegistrationSemester-addon">
+                        <i class="fa fa-clock-o fa-fw" />
+                      </span>
+                    </div>
+
+                    <h:inputText
+                      id="new_courseRegistrationSemester"
+                      styleClass="form-control placeholder-darkgray"
+                      value="#{newCourseRegistration.semester}"
+                      a:placeholder="#{uiconsts['columnLabel_Semester']}"
+                      validatorMessage="#{uiconsts['enter_valid_semester']}">
+
+                      <f:validateLength minimum="1" maximum="6" />
+                    </h:inputText>
+                  </h:panelGroup>
+
+                  <h:message for="new_courseRegistrationSemester" style="color:red" />
+
+                </h:panelGrid>
+
+                <h:panelGrid columns="2" cellpadding="10">
+
+                  <h:commandLink action="#{newCourseRegistration.addCourseRegistration()}">
+                    <i class="fa fa-plus-circle fa-fw" />
+                    &#xa0;
+                    <h:outputText
+                      class="text-success"
+                      value="#{uiconsts['submitLabel']}" />
+                  </h:commandLink>
+
+                  <h:commandLink
+                    action="#{courseRegistrationController.toggleAdding()}"
+                    immediate="true">
+
+                    <i class="fa fa-undo fa-fw" />
+                    &#xa0;
+                    <h:outputText
+                      class="text-primary"
+                      value="#{uiconsts['cancelLabel']}" />
+                  </h:commandLink>
+
+                </h:panelGrid>
+              </h:panelGroup>
+            </h:form>
+
+            <br />
+          </h:panelGroup>
+
+          <h:form id="courseRegistrationList">
+            <h:dataTable
+              value="#{courseRegistrationController.courseRegistrations}"
+              var="courseRegistration"
+              styleClass="table table-striped table-bordered table-hover"
+              headerClass="thead-light"
+              captionClass="text-center">
+
+              <f:facet name="caption">
+                #{uiconsts['courseRegistrationListCaption']}
+              </f:facet>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Student']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{courseRegistration.student.firstName} #{courseRegistration.student.lastName}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Course']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{courseRegistration.course.courseCode} - #{courseRegistration.course.courseTitle}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Year']}
+                </f:facet>
+
+                <h:outputText value="#{courseRegistration.year}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Semester']}
+                </f:facet>
+
+                <h:outputText value="#{courseRegistration.semester}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Grade']}
+                </f:facet>
+
+                <h:outputText value="#{courseRegistration.letterGrade}" />
+              </h:column>
+
+              <h:column rendered="#{request.isUserInRole('ADMIN_ROLE')}">
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Action']}
+                </f:facet>
+
+                <h:commandLink
+                  action="#{courseRegistrationController.deleteCourseRegistration(courseRegistration.student.id, courseRegistration.course.id)}"
+                  onclick="return confirm('#{uiconsts['deleteCourseRegistrationConfirmation']}');">
+
+                  <i class="fa fa-trash fa-fw" style="color:red" />
+                  &#xa0;
+                  <h:outputText value="#{uiconsts['deleteLabel']}" />
+                </h:commandLink>
+
+              </h:column>
+            </h:dataTable>
+
+            <h:panelGroup class="refreshFooter">
+              <h:commandButton
+                value="#{uiconsts['refreshButtonLabel']}"
+                action="#{courseRegistrationController.refreshCourseRegistrationForm()}" />
+            </h:panelGroup>
+          </h:form>
+
+          <h:messages
+            globalOnly="true"
+            layout="table"
+            styleClass="alert alert-danger" />
+
+        </h:panelGroup>
+
       </div>
     </div>
   </h:body>
