@@ -58,6 +58,7 @@ public class CourseRegistrationController implements Serializable, MyConstants {
     protected ProfessorController professorController;
 
     protected List<CourseRegistration> listOfCourseRegistrations;
+    protected List<String> listOfLetterGrades;
     protected boolean adding;
 
     protected URI uri;
@@ -88,12 +89,14 @@ public class CourseRegistrationController implements Serializable, MyConstants {
 
         webTarget = client.target(uri);
         listOfCourseRegistrations = new ArrayList<>();
+        listOfLetterGrades = new ArrayList<>();
 
         // Ensure the student/course/professor dropdowns have data
         // regardless of which panel the admin visited first.
         studentController.loadStudents();
         courseController.loadCourses();
         professorController.loadProfessors();
+        loadLetterGrades();
     }
 
     /**
@@ -154,6 +157,48 @@ public class CourseRegistrationController implements Serializable, MyConstants {
                 "Unable to connect to the REST application: "
                     + e.getMessage()
             );
+        }
+        finally {
+            if (response != null) {
+                response.close();
+            }
+        }
+    }
+
+    public List<String> getLetterGrades() {
+        if (listOfLetterGrades == null) {
+            listOfLetterGrades = new ArrayList<>();
+        }
+
+        return listOfLetterGrades;
+    }
+
+    public void loadLetterGrades() {
+        Response response = null;
+
+        try {
+            response = webTarget
+                .register(getAuthentication())
+                .path(COURSEREGISTRATION_RESOURCE_NAME + "/lettergrade")
+                .request()
+                .get();
+
+            if (response.getStatus()
+                == Response.Status.OK.getStatusCode()) {
+
+                listOfLetterGrades = response.readEntity(
+                    new GenericType<List<String>>() {
+                    }
+                );
+            }
+            else {
+                listOfLetterGrades = new ArrayList<>();
+
+                addErrorMessage(
+                    "Unable to load letter grades. HTTP status: "
+                        + response.getStatus()
+                );
+            }
         }
         finally {
             if (response != null) {
@@ -234,6 +279,93 @@ public class CourseRegistrationController implements Serializable, MyConstants {
             else {
                 addErrorMessage(
                     "Unable to delete course registration. HTTP status: "
+                        + response.getStatus()
+                );
+            }
+        }
+        finally {
+            if (response != null) {
+                response.close();
+            }
+        }
+
+        return null;
+    }
+
+    public String assignProfessor(
+        int studentId,
+        int courseId,
+        int professorId
+    ) {
+        Response response = null;
+
+        Professor professor = new Professor();
+        professor.setId(professorId);
+
+        try {
+            response = webTarget
+                .register(getAuthentication())
+                .path(
+                    COURSEREGISTRATION_RESOURCE_NAME
+                        + "/student/"
+                        + studentId
+                        + "/course/"
+                        + courseId
+                        + "/professor"
+                )
+                .request()
+                .put(Entity.json(professor));
+
+            if (response.getStatus()
+                == Response.Status.OK.getStatusCode()) {
+
+                loadCourseRegistrations();
+            }
+            else {
+                addErrorMessage(
+                    "Unable to assign professor. HTTP status: "
+                        + response.getStatus()
+                );
+            }
+        }
+        finally {
+            if (response != null) {
+                response.close();
+            }
+        }
+
+        return null;
+    }
+
+    public String assignLetterGrade(
+        int studentId,
+        int courseId,
+        String letterGrade
+    ) {
+        Response response = null;
+
+        try {
+            response = webTarget
+                .register(getAuthentication())
+                .path(
+                    COURSEREGISTRATION_RESOURCE_NAME
+                        + "/student/"
+                        + studentId
+                        + "/course/"
+                        + courseId
+                        + "/grade"
+                )
+                .request()
+                .put(Entity.text(letterGrade));
+
+            if (response.getStatus()
+                == Response.Status.OK.getStatusCode()) {
+
+                loadCourseRegistrations();
+            }
+            else {
+                addErrorMessage(
+                    "Unable to assign letter grade. HTTP status: "
                         + response.getStatus()
                 );
             }

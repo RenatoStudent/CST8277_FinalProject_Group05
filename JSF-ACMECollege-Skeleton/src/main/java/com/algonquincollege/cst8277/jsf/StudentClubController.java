@@ -11,13 +11,16 @@ package com.algonquincollege.cst8277.jsf;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.glassfish.jersey.logging.LoggingFeature;
 
+import com.algonquincollege.cst8277.entity.Student;
 import com.algonquincollege.cst8277.entity.StudentClub;
 import com.algonquincollege.cst8277.rest.resource.MyObjectMapperProvider;
 import com.algonquincollege.cst8277.utility.MyConstants;
@@ -48,8 +51,15 @@ public class StudentClubController implements Serializable, MyConstants {
     @Inject
     protected LoginBean loginBean;
 
+    @Inject
+    protected StudentController studentController;
+
     protected List<StudentClub> listOfStudentClubs;
+    protected Map<Integer, List<Student>> clubMembers;
     protected boolean adding;
+
+    protected Integer selectedStudentId;
+    protected Integer selectedClubId;
 
     protected URI uri;
     protected Client client;
@@ -79,6 +89,9 @@ public class StudentClubController implements Serializable, MyConstants {
 
         webTarget = client.target(uri);
         listOfStudentClubs = new ArrayList<>();
+        clubMembers = new HashMap<>();
+
+        studentController.loadStudents();
     }
 
     /**
@@ -145,6 +158,135 @@ public class StudentClubController implements Serializable, MyConstants {
         }
     }
 
+    public Map<Integer, List<Student>> getClubMembers() {
+        if (clubMembers == null) {
+            clubMembers = new HashMap<>();
+        }
+
+        return clubMembers;
+    }
+
+    public void loadAllClubMembers() {
+        for (StudentClub studentClub : getStudentClubs()) {
+            loadClubMembers(studentClub.getId());
+        }
+    }
+
+    public void loadClubMembers(int clubId) {
+        Response response = null;
+
+        try {
+            response = webTarget
+                .register(getAuthentication())
+                .path(
+                    STUDENTCLUB_RESOURCE_NAME
+                        + "/"
+                        + clubId
+                        + "/student"
+                )
+                .request()
+                .get();
+
+            if (response.getStatus()
+                == Response.Status.OK.getStatusCode()) {
+
+                List<Student> members = response.readEntity(
+                    new GenericType<List<Student>>() {
+                    }
+                );
+
+                getClubMembers().put(clubId, members);
+            }
+            else {
+                getClubMembers().put(clubId, new ArrayList<>());
+
+                addErrorMessage(
+                    "Unable to load club members. HTTP status: "
+                        + response.getStatus()
+                );
+            }
+        }
+        finally {
+            if (response != null) {
+                response.close();
+            }
+        }
+    }
+
+    public String registerStudentToClub(int studentId, int clubId) {
+        Response response = null;
+
+        try {
+            response = webTarget
+                .register(getAuthentication())
+                .path(
+                    STUDENTCLUB_RESOURCE_NAME
+                        + "/"
+                        + clubId
+                        + "/student/"
+                        + studentId
+                )
+                .request()
+                .post(Entity.json(null));
+
+            if (response.getStatus()
+                == Response.Status.OK.getStatusCode()) {
+
+                loadClubMembers(clubId);
+            }
+            else {
+                addErrorMessage(
+                    "Unable to register student to club. HTTP status: "
+                        + response.getStatus()
+                );
+            }
+        }
+        finally {
+            if (response != null) {
+                response.close();
+            }
+        }
+
+        return null;
+    }
+
+    public String removeStudentFromClub(int studentId, int clubId) {
+        Response response = null;
+
+        try {
+            response = webTarget
+                .register(getAuthentication())
+                .path(
+                    STUDENTCLUB_RESOURCE_NAME
+                        + "/"
+                        + clubId
+                        + "/student/"
+                        + studentId
+                )
+                .request()
+                .delete();
+
+            if (response.getStatus()
+                == Response.Status.OK.getStatusCode()) {
+
+                loadClubMembers(clubId);
+            }
+            else {
+                addErrorMessage(
+                    "Unable to remove student from club. HTTP status: "
+                        + response.getStatus()
+                );
+            }
+        }
+        finally {
+            if (response != null) {
+                response.close();
+            }
+        }
+
+        return null;
+    }
+
     public boolean isAdding() {
         return adding;
     }
@@ -155,6 +297,31 @@ public class StudentClubController implements Serializable, MyConstants {
 
     public void toggleAdding() {
         setAdding(!isAdding());
+    }
+
+    public Integer getSelectedStudentId() {
+        return selectedStudentId;
+    }
+
+    public void setSelectedStudentId(Integer selectedStudentId) {
+        this.selectedStudentId = selectedStudentId;
+    }
+
+    public Integer getSelectedClubId() {
+        return selectedClubId;
+    }
+
+    public void setSelectedClubId(Integer selectedClubId) {
+        this.selectedClubId = selectedClubId;
+    }
+
+    public String addNewMembership() {
+        if (selectedStudentId == null || selectedClubId == null) {
+            addErrorMessage("Please select both a student and a club.");
+            return null;
+        }
+
+        return registerStudentToClub(selectedStudentId, selectedClubId);
     }
 
     public String editStudentClub(StudentClub studentClub) {
@@ -266,6 +433,21 @@ public class StudentClubController implements Serializable, MyConstants {
                 response.close();
             }
         }
+
+        return null;
+    }
+
+    public String refreshClubMembershipForm() {
+        Iterator<FacesMessage> messages =
+            facesContext.getMessages();
+
+        while (messages.hasNext()) {
+            messages.next();
+            messages.remove();
+        }
+
+        loadStudentClubs();
+        loadAllClubMembers();
 
         return null;
     }

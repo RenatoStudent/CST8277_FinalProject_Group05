@@ -1423,6 +1423,345 @@
 
         </h:panelGroup>
 
+        <!-- panel group for assign professor -->
+        <h:panelGroup
+          rendered="#{(externalContext.userPrincipal ne null)
+            and request.isUserInRole('ADMIN_ROLE')
+            and (mainController.optionChosen == 'Assign Professor')}">
+
+          <h:form id="assignProfessorList">
+            <h:dataTable
+              value="#{courseRegistrationController.courseRegistrations}"
+              var="courseRegistration"
+              styleClass="table table-striped table-bordered table-hover"
+              headerClass="thead-light"
+              captionClass="text-center">
+
+              <f:facet name="caption">
+                #{uiconsts['assignProfessorListCaption']}
+              </f:facet>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Student']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{courseRegistration.student.firstName} #{courseRegistration.student.lastName}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Course']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{courseRegistration.course.courseCode} - #{courseRegistration.course.courseTitle}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_CurrentProfessor']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{courseRegistration.professor.firstName} #{courseRegistration.professor.lastName}"
+                  rendered="#{courseRegistration.professor ne null}" />
+
+                <h:outputText
+                  value="#{uiconsts['noneAssigned']}"
+                  rendered="#{courseRegistration.professor eq null}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Professor']}
+                </f:facet>
+
+                <h:selectOneMenu
+                  value="#{courseRegistration.selectedProfessorId}">
+
+                  <f:selectItems
+                    value="#{professorController.professors}"
+                    var="professor"
+                    itemLabel="#{professor.firstName} #{professor.lastName}"
+                    itemValue="#{professor.id}" />
+                </h:selectOneMenu>
+
+                <h:commandLink
+                  action="#{courseRegistrationController.assignProfessor(
+                    courseRegistration.student.id,
+                    courseRegistration.course.id,
+                    courseRegistration.selectedProfessorId)}">
+
+                  <i class="fa fa-check-circle fa-fw" />
+                  &#xa0;
+                  <h:outputText
+                    class="text-success"
+                    value="#{uiconsts['assignButtonLabel']}" />
+                </h:commandLink>
+              </h:column>
+            </h:dataTable>
+
+            <h:panelGroup class="refreshFooter">
+              <h:commandButton
+                value="#{uiconsts['refreshButtonLabel']}"
+                action="#{courseRegistrationController.refreshCourseRegistrationForm()}" />
+            </h:panelGroup>
+          </h:form>
+
+          <h:messages
+            globalOnly="true"
+            layout="table"
+            styleClass="alert alert-danger" />
+
+        </h:panelGroup>
+
+        <!-- panel group for assign grade -->
+        <h:panelGroup
+          rendered="#{(externalContext.userPrincipal ne null)
+            and request.isUserInRole('ADMIN_ROLE')
+            and (mainController.optionChosen == 'Assign Grade')}">
+
+          <h:form id="assignGradeList">
+            <h:dataTable
+              value="#{courseRegistrationController.courseRegistrations}"
+              var="courseRegistration"
+              styleClass="table table-striped table-bordered table-hover"
+              headerClass="thead-light"
+              captionClass="text-center">
+
+              <f:facet name="caption">
+                #{uiconsts['assignGradeListCaption']}
+              </f:facet>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Student']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{courseRegistration.student.firstName} #{courseRegistration.student.lastName}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Course']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{courseRegistration.course.courseCode} - #{courseRegistration.course.courseTitle}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_CurrentGrade']}
+                </f:facet>
+
+                <h:outputText
+                  value="#{courseRegistration.letterGrade}"
+                  rendered="#{courseRegistration.letterGrade ne null}" />
+
+                <h:outputText
+                  value="#{uiconsts['noneAssigned']}"
+                  rendered="#{courseRegistration.letterGrade eq null}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Grade']}
+                </f:facet>
+
+                <h:selectOneMenu
+                  value="#{courseRegistration.selectedLetterGrade}">
+
+                  <f:selectItems
+                    value="#{courseRegistrationController.letterGrades}" />
+                </h:selectOneMenu>
+
+                <h:commandLink
+                  action="#{courseRegistrationController.assignLetterGrade(
+                    courseRegistration.student.id,
+                    courseRegistration.course.id,
+                    courseRegistration.selectedLetterGrade)}">
+
+                  <i class="fa fa-check-circle fa-fw" />
+                  &#xa0;
+                  <h:outputText
+                    class="text-success"
+                    value="#{uiconsts['assignButtonLabel']}" />
+                </h:commandLink>
+              </h:column>
+            </h:dataTable>
+
+            <h:panelGroup class="refreshFooter">
+              <h:commandButton
+                value="#{uiconsts['refreshButtonLabel']}"
+                action="#{courseRegistrationController.refreshCourseRegistrationForm()}" />
+            </h:panelGroup>
+          </h:form>
+
+          <h:messages
+            globalOnly="true"
+            layout="table"
+            styleClass="alert alert-danger" />
+
+        </h:panelGroup>
+
+        <!-- panel group for club membership registration -->
+        <h:panelGroup
+          rendered="#{(externalContext.userPrincipal ne null)
+            and request.isUserInRole('ADMIN_ROLE')
+            and (mainController.optionChosen == 'Club Membership Registration')}">
+
+          <h:form id="addClubMembership">
+
+            <h:commandLink action="#{studentClubController.toggleAdding()}">
+              <i class="fa fa-plus-circle" />
+              &#xa0;
+              <h:outputText value="#{uiconsts['addClubMembershipTitle']}" />
+            </h:commandLink>
+
+            <h:panelGroup rendered="#{studentClubController.adding}">
+              <h:panelGrid columns="2" cellpadding="2" cellspacing="1">
+
+                <h:panelGroup class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="membershipStudent-addon">
+                      <i class="fa fa-user fa-fw" />
+                    </span>
+                  </div>
+
+                  <h:selectOneMenu
+                    id="new_membershipStudent"
+                    styleClass="form-control"
+                    value="#{studentClubController.selectedStudentId}">
+
+                    <f:selectItems
+                      value="#{studentController.students}"
+                      var="student"
+                      itemLabel="#{student.firstName} #{student.lastName}"
+                      itemValue="#{student.id}" />
+                  </h:selectOneMenu>
+                </h:panelGroup>
+
+                <h:panelGroup class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="membershipClub-addon">
+                      <i class="fa fa-users fa-fw" />
+                    </span>
+                  </div>
+
+                  <h:selectOneMenu
+                    id="new_membershipClub"
+                    styleClass="form-control"
+                    value="#{studentClubController.selectedClubId}">
+
+                    <f:selectItems
+                      value="#{studentClubController.studentClubs}"
+                      var="studentClubOption"
+                      itemLabel="#{studentClubOption.name}"
+                      itemValue="#{studentClubOption.id}" />
+                  </h:selectOneMenu>
+                </h:panelGroup>
+
+              </h:panelGrid>
+
+              <h:panelGrid columns="2" cellpadding="10">
+
+                <h:commandLink action="#{studentClubController.addNewMembership()}">
+                  <i class="fa fa-plus-circle fa-fw" />
+                  &#xa0;
+                  <h:outputText
+                    class="text-success"
+                    value="#{uiconsts['submitLabel']}" />
+                </h:commandLink>
+
+                <h:commandLink
+                  action="#{studentClubController.toggleAdding()}"
+                  immediate="true">
+
+                  <i class="fa fa-undo fa-fw" />
+                  &#xa0;
+                  <h:outputText
+                    class="text-primary"
+                    value="#{uiconsts['cancelLabel']}" />
+                </h:commandLink>
+
+              </h:panelGrid>
+            </h:panelGroup>
+          </h:form>
+
+          <br />
+
+          <h:form id="clubMembershipList">
+            <h:dataTable
+              value="#{studentClubController.studentClubs}"
+              var="studentClub"
+              styleClass="table table-striped table-bordered table-hover"
+              headerClass="thead-light"
+              captionClass="text-center">
+
+              <f:facet name="caption">
+                #{uiconsts['studentClubListCaption']}
+              </f:facet>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['columnLabel_Name']}
+                </f:facet>
+
+                <h:outputText value="#{studentClub.name}" />
+              </h:column>
+
+              <h:column>
+                <f:facet name="header">
+                  #{uiconsts['clubMembersCaption']}
+                </f:facet>
+
+                <h:dataTable
+                  value="#{studentClubController.clubMembers[studentClub.id]}"
+                  var="member"
+                  styleClass="table table-sm table-bordered"
+                  rendered="#{not empty studentClubController.clubMembers[studentClub.id]}">
+
+                  <h:column>
+                    <h:outputText
+                      value="#{member.firstName} #{member.lastName}" />
+                  </h:column>
+
+                  <h:column>
+                    <h:commandLink
+                      action="#{studentClubController.removeStudentFromClub(member.id, studentClub.id)}"
+                      onclick="return confirm('#{uiconsts['removeClubMembershipConfirmation']}');">
+
+                      <i class="fa fa-trash fa-fw" style="color:red" />
+                      &#xa0;
+                      <h:outputText value="#{uiconsts['deleteLabel']}" />
+                    </h:commandLink>
+                  </h:column>
+                </h:dataTable>
+
+                <h:outputText
+                  value="#{uiconsts['noMembers']}"
+                  rendered="#{empty studentClubController.clubMembers[studentClub.id]}" />
+              </h:column>
+            </h:dataTable>
+
+            <h:panelGroup class="refreshFooter">
+              <h:commandButton
+                value="#{uiconsts['refreshButtonLabel']}"
+                action="#{studentClubController.refreshClubMembershipForm()}" />
+            </h:panelGroup>
+          </h:form>
+
+          <h:messages
+            globalOnly="true"
+            layout="table"
+            styleClass="alert alert-danger" />
+
+        </h:panelGroup>
+
       </div>
     </div>
   </h:body>

@@ -129,6 +129,19 @@ public class MainController implements Serializable, MyConstants {
                 courseRegistrationController.loadCourseRegistrations();
                 break;
 
+            case ASSIGN_PROFESSOR:
+                courseRegistrationController.loadCourseRegistrations();
+                break;
+
+            case ASSIGN_GRADE:
+                courseRegistrationController.loadCourseRegistrations();
+                break;
+
+            case CLUB_MEMBERSHIP_REGISTRATION:
+                studentClubController.loadStudentClubs();
+                studentClubController.loadAllClubMembers();
+                break;
+
             default:
                 break;
         }

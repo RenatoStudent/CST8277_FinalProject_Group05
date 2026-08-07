@@ -21,6 +21,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 /**
  * Persistent entity for the course_registration database table.
@@ -147,6 +148,20 @@ public class CourseRegistration
     protected String letterGrade;
 
     /**
+     * Holds the professor selected in the Assign Professor panel's
+     * per-row dropdown before the assignment is submitted.
+     */
+    @Transient
+    protected Integer selectedProfessorId;
+
+    /**
+     * Holds the letter grade selected in the Assign Grade panel's
+     * per-row dropdown before the assignment is submitted.
+     */
+    @Transient
+    protected String selectedLetterGrade;
+
+    /**
      * JPA-required constructor.
      */
     public CourseRegistration() {
@@ -225,5 +240,21 @@ public class CourseRegistration
 
     public void setLetterGrade(String letterGrade) {
         this.letterGrade = letterGrade;
+    }
+
+    public Integer getSelectedProfessorId() {
+        return selectedProfessorId;
+    }
+
+    public void setSelectedProfessorId(Integer selectedProfessorId) {
+        this.selectedProfessorId = selectedProfessorId;
+    }
+
+    public String getSelectedLetterGrade() {
+        return selectedLetterGrade;
+    }
+
+    public void setSelectedLetterGrade(String selectedLetterGrade) {
+        this.selectedLetterGrade = selectedLetterGrade;
     }
 }
